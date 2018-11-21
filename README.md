@@ -7,6 +7,8 @@ file.py:
     reads files into a list, breaking where there is a newline.
 * readAsRaw(str fileName)  
     reads files into a string, includes newlines.
+
+
 display.py:
 * asBlock(str text, int width, int height, bool heavyB)  
     turns text into a block using unicode block characters  
