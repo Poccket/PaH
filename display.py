@@ -1,16 +1,17 @@
 # display.py
 
 block = {
-	'heavy': ["┏", "┓", "┗", "┛", "┃", "━"], 
+	'heavy': ["┏", "┓", "┗", "┛", "┃", "━"],
 	'light': ["┌", "┐", "└", "┘", "│", "─"]
 }
 
-def asBlock(text="", width=10, height=10, heavyB=False, **kwargs):
+def asBlock(text="", width=10, height=10, heavyB=False, doCompensate=True, **kwargs):
 	try:																		# gotta make sure that all of the variables are the right type
 		text = str(text)
 		width = int(width)
 		height = int(height)
 		heavyB = bool(heavyB)
+		doCompensate = bool(doCompensate)
 	except Exception as e:														# throw an error if they're not, since we can't use them
 		return e
 
@@ -19,6 +20,9 @@ def asBlock(text="", width=10, height=10, heavyB=False, **kwargs):
 	else:
 		weight = "light"
 
+	if doCompensate:
+		width += 2
+		height += 2																# set width and height to self+2 so we can account for the block's pieces in the text
 	currHeight = 1																# create variable so we know the current height ($currHeight)
 	output = block[weight][0]													# set $output to ┏, the first character of the block
 	x = width - 2																# set $x to $width minus 2, which would be the length of the upper straight line
