@@ -3,8 +3,14 @@
 
 def readAsList(fileName):
 	'''
-	readAsList(str fileName)
-		Reads files into a list, splitting at newlines.
+	Reads files into a list.
+
+        Takes in a filename, reads it into a buffer, then returns the buffer as a list, splitting items at newlines.
+
+        Parameters:
+        fileName    (str)   :   The name of the file to read
+        Returns:
+        list                :   A list of the contents of the file
 	'''
 	fileOpen = open(fileName, "r")								#	set fileOpen as the file, with option 'r' for reading.
 	return fileOpen.read().splitlines()							#	return an array version of the file, where it splits at newlines.
