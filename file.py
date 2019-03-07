@@ -17,8 +17,14 @@ def readAsList(fileName):
 
 def readAsRaw(fileName):
 	'''
-	readFileAsRaw(str fileName)
-		Reads files into a string, no splitting.
+	Reads files into a string.
+
+        Takes in a filename, reads it into a buffer, then returns the buffer as a string.
+
+        Parameters:
+        fileName    (str)   :   The name of the file to read
+        Returns:
+        str                 :   A string of the contents of the file
 	'''
 	fileOpen = open(fileName, "r")								#	set fileOpen as the file, with option 'r' for reading.
 	return fileOpen.read()										#	return a string version of the file, with no manipulation.
