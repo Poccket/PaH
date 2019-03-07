@@ -3,13 +3,12 @@
 
 # Progress
 file.py:
-* readAsList(str fileName)  
+* readAsList(str fileName)
     reads files into a list, breaking where there is a newline.
-* readAsRaw(str fileName)  
+* readAsRaw(str fileName)
     reads files into a string, includes newlines.
 
 
 display.py:
-* asBlock(str text, int width, int height, bool heavyB)  
-    turns text into a block using unicode block characters  
-    UNFINISHED
+* asBlock(str text, int width, int height, bool heavyBlock, bool doCompensate)
+    turns text into a block using unicode block characters
