@@ -86,6 +86,7 @@ def asBlock(text="", width=10, height=10, heavyBlocks=False, doCompensate=True, 
 				else:															#			if the characters on the line are more than the width
 					if asList:
 						output[currHeight-1] += block[weight][4]
+						output.append("")
 						output[currHeight] += block[weight][4] + x
 					else:
 						output += block[weight][4] + "\n" + block[weight][4]+ x	# 				add a VER, newline, VER and the letter to the output
