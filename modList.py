@@ -3,8 +3,16 @@
 from typing import List
 
 
-def merge_everyother(listlist: list) -> List[str]:
-	"""Merges lists into a single list"""
+def merge_alternate(listlist: list) -> List[str]:
+	"""
+	Merges lists into one list.
+
+	Creates a single list from a set of lists by alternating through the lists.
+	For example, Item from A, Item from B, Item from C, Item from A and so on.
+
+	:param listlist: A list of the lists to merge.
+	:return: The merged lists as a single list
+	"""
 	if type(listlist) != list:
 		raise TypeError("item 'listList' must be a list")
 	output = []

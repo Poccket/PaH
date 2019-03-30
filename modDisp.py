@@ -7,8 +7,18 @@ block = {
 }
 
 
-def asblock(text: str = "", width: int = 10, height: int = 10, heavyblocks: bool = False, docompensate: bool = True, aslist: bool = False) -> [str, List[str]]:
-	"""Displays text in a block, created from ASCII characters."""
+def as_block(text: str = "", width: int = 10, height: int = 10, heavyblocks: bool = False, docompensate: bool = True, aslist: bool = False) -> [str, List[str]]:
+	"""
+	Creates a block. containing text, of Unicode characters.
+
+	:param text: The text inside the block
+	:param width: The width of the block
+	:param height: The height of the block
+	:param heavyblocks: Whether or not to use bolded characters
+	:param docompensate: When set to True, the height/weight are actually the size of the space within the block
+	:param aslist: Whether to return as a list of lines, or as a string with newlines
+	:return: A string or a list, depending on aslist
+	"""
 	try:  # Attempt to set all the variables as the right type
 		text = str(text)
 		width = int(width)
