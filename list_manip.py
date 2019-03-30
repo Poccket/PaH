@@ -1,4 +1,4 @@
-# list.py
+# list_manip.py
 #	functions for manipulating and creating lists.
 
 def merge_everyOther(listList=[], **kwargs):
@@ -12,6 +12,8 @@ def merge_everyOther(listList=[], **kwargs):
 	Returns:
 	list				:	A merged list
 	'''
+	if type(listList) != list:
+		raise TypeError("item 'listList' must be a list")
 	output = []
 	length = len(max(listList, key=len))
 	
