@@ -3,9 +3,9 @@
 
 def merge_everyOther(listList=[], **kwargs):
 	'''
-	Merges two lists into a single list
+	Merges lists into a single list
 
-	Merges two lists, taking the first of each and inserting it into a new list, then the second of each, and so on.
+	Merges lists, taking the first of each and inserting it into a new list, then the second of each, and so on.
 
 	Parameters:
 	listList	(list)	:	List of all the lists to be merged
