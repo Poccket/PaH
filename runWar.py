@@ -45,22 +45,6 @@ while True:
 			print('')
 		row_startingCard += max_cards
 
-	# deck_display_upper = []
-	# deck_display_lower = []
-
-	# deck_half = len(human_hand) % 2
-
-	# for x in human_hand[:(len(human_hand)//2)+deck_half]:
-		# deck_display_upper.append(modDisp.as_block(x, aslist=True))
-	# deck_display = modList.merge_alternate(deck_display_upper, endchar="\n")
-	# for x in human_hand[(len(human_hand)//2)+deck_half:]:
-		# deck_display_lower.append(modDisp.as_block(x, aslist=True))
-	# deck_display.extend(modList.merge_alternate(deck_display_lower, endchar="\n"))
-	# print("Your deck:")
-	# for x in deck_display:
-		# print(x, end='')
-	# print('', flush=True)
-
 	select = input("Enter a number to select a card, or anything else to exit> ")
 
 	try:
