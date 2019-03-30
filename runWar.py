@@ -6,7 +6,7 @@ import random
 input('Please enter full-screen, then press enter. This demo requires a terminal size of at least 130 characters wide.')
 
 while True:
-	deck = modFile.read_list("cardFrench.txt")
+	deck = modFile.read_list("decks/cardFrench.txt")
 	available = list(range(len(deck)))
 	x = None
 	turn = True
