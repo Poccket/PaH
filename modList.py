@@ -1,24 +1,17 @@
 # list_manip.py
-#	functions for manipulating and creating lists.
+# functions for manipulating and creating lists.
+from typing import List
 
-def merge_everyOther(listList=[], **kwargs):
-	'''
-	Merges lists into a single list
 
-	Merges lists, taking the first of each and inserting it into a new list, then the second of each, and so on.
-
-	Parameters:
-	listList	(list)	:	List of all the lists to be merged
-	Returns:
-	list				:	A merged list
-	'''
-	if type(listList) != list:
+def merge_everyother(listlist: list) -> List[str]:
+	"""Merges lists into a single list"""
+	if type(listlist) != list:
 		raise TypeError("item 'listList' must be a list")
 	output = []
-	length = len(max(listList, key=len))
+	length = len(max(listlist, key=len))
 	
 	for vItem in range(0, length):
-		for vList in listList:
+		for vList in listlist:
 			if vItem <= len(vList)-1:
 				output.append(vList[vItem])
 
