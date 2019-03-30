@@ -6,7 +6,7 @@ import random
 input('Please enter full-screen, then press enter. This demo requires a terminal size of at least 130 characters wide.')
 
 while True:
-	deck = modFile.read_list("cardFrench.txt")
+	deck = modFile.read_list("cardFunkyFrench.txt")
 	available = list(range(52))
 	x = None
 	turn = True
@@ -25,10 +25,10 @@ while True:
 
 	deck_display_upper = []
 	deck_display_lower = []
-	for x in human_deck[:13]:
+	for x in human_deck[:len(human_deck)//2]:
 		deck_display_upper.append(modDisp.as_block(x, aslist=True))
 	deck_display = modList.merge_alternate(deck_display_upper)
-	for x in human_deck[13:]:
+	for x in human_deck[len(human_deck)//2:]:
 		deck_display_lower.append(modDisp.as_block(x, aslist=True))
 	deck_display.extend(modList.merge_alternate(deck_display_lower))
 	print("Your deck:")
@@ -53,15 +53,15 @@ while True:
 		y += 1
 	print('', flush=True)
 
-	select = input("Enter a number to select a card, or anything else to exit")
+	select = input("Enter a number to select a card, or anything else to exit> ")
 
 	try:
-		slt = int(select)
+		slt = int(select)-1
 	except:
 		break
-	if int(select) not in list(range(27)):
+	if int(select) not in list(range(0,27)):
 		break
 
-	print(modDisp.as_block(human_deck[slt], height=25, width=25, heavyblocks=True))
+	print(modDisp.as_block(human_deck[slt], heavyblocks=True))
 
 	input("Enter to restart")
