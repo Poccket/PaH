@@ -8,9 +8,9 @@ C~~    ~~C{        }            ~~~~~~    Ace of    Clubs     ~~~~~~            
 8        C                               Eight of   Clubs                                 C        8
 9        C                                Nine of   Clubs                                 C        9
 10       C                                Ten of    Clubs                                 C       10
-J        C                                Jack of   Clubs                                 C        J
-Q        C                               Queen of   Clubs                                 C        Q
-K        C                                King of   Clubs                                 C        K
+J-.    .-C                                Jack of   Clubs                                 C-.    .-J
+Q~.    .~C                       ~~~~    Queen of   Clubs      ~~~~                       C~.    .~Q
+K~.    .~C                       ~~~~     King of   Clubs      ~~~~                       C~.    .~K
 D~~    ~~D{        }            ~~~~~~    Ace of   Diamonds   ~~~~~~            {        }D~~    ~~D
 2        D                                Two of   Diamonds                               D        2
 3        D                               Three of  Diamonds                               D        3
@@ -21,9 +21,9 @@ D~~    ~~D{        }            ~~~~~~    Ace of   Diamonds   ~~~~~~            
 8        D                               Eight of  Diamonds                               D        8
 9        D                                Nine of  Diamonds                               D        9
 10       D                                Ten of   Diamonds                               D       10
-J        D                                Jack of  Diamonds                               D        J
-Q        D                               Queen of  Diamonds                               D        Q
-K        D                                King of  Diamonds                               D        K
+J-.    .-D                                Jack of  Diamonds                               D-.    .-J
+Q~.    .~D                       ~~~~    Queen of  Diamonds    ~~~~                       D~.    .~Q
+K~.    .~D                       ~~~~     King of  Diamonds    ~~~~                       D~.    .~K
 H~~    ~~H{        }            ~~~~~~    Ace of    Hearts    ~~~~~~            {        }H~~    ~~H
 2        H                                Two of    Hearts                                H        2
 3        H                               Three of   Hearts                                H        3
@@ -34,9 +34,9 @@ H~~    ~~H{        }            ~~~~~~    Ace of    Hearts    ~~~~~~            
 8        H                               Eight of   Hearts                                H        8
 9        H                                Nine of   Hearts                                H        9
 10       H                                Ten of    Hearts                                H       10
-J        H                                Jack of   Hearts                                H        J
-Q        H                               Queen of   Hearts                                H        Q
-K        H                                King of   Hearts                                H        K
+J-.    .-H                                Jack of   Hearts                                H-.    .-J
+Q~.    .~H                       ~~~~    Queen of   Hearts     ~~~~                       H~.    .~Q
+K~.    .~H                       ~~~~     King of   Hearts     ~~~~                       H~.    .~K
 S~~    ~~S{        }            ~~~~~~    Ace of    Spades    ~~~~~~            {        }S~~    ~~S
 2        S                                Two of    Spades                                S        2
 3        S                               Three of   Spades                                S        3
@@ -47,7 +47,8 @@ S~~    ~~S{        }            ~~~~~~    Ace of    Spades    ~~~~~~            
 8        S                               Eight of   Spades                                S        8
 9        S                                Nine of   Spades                                S        9
 10       S                                Ten of    Spades                                S       10
-J        S                                Jack of   Spades                                S        J
-Q        S                               Queen of   Spades                                S        Q
-K        S                                King of   Spades                                S        K
-HA      HA                                IT'S A    JOKER!                                HA      HA
+J-.    .-S                                Jack of   Spades                                S-.    .-J
+Q~.    .~S                       ~~~~    Queen of   Spades     ~~~~                       S~.    .~Q
+K~.    .~S                       ~~~~     King of   Spades     ~~~~                       S~.    .~K
+AHA    AHA                      ~~~~~~    IT'S A    JOKER!    ~~~~~~                      AHA    AHA
+HAH    HAH                      ~~~~~~    IT'S A    JOKER!    ~~~~~~                      HAH    HAH
