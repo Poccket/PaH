@@ -18,12 +18,19 @@ def merge_alternate(listlist: list, endchar: str = None) -> List[str]:
 		raise TypeError("item 'listList' must be a list")
 	output = []
 	length = len(max(listlist, key=len))
-	
-	for vItem in range(0, length):
-		for vList in listlist:
-			if vItem <= len(vList)-1:
-				output.append(vList[vItem])
-		if endchar is not None:
-			output.append(endchar)
+
+	if endchar != "list":
+		for vItem in range(0, length):
+			for vList in listlist:
+				if vItem <= len(vList)-1:
+					output.append(vList[vItem])
+			if endchar is not None:
+				output.append(endchar)
+	else:
+		for vItem in range(0, length):
+			output.append([])
+			for vList in listlist:
+				if vItem <= len(vList)-1:
+					output[vItem].append(vList[vItem])
 
 	return output
