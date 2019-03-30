@@ -12,3 +12,8 @@ file.py:
 display.py:
 * asBlock(str text, int width, int height, bool heavyBlock, bool doCompensate)
   * turns text into a block using unicode block characters
+
+
+list.py:
+* merge_everyOther(list listList)
+  * turns lists into one list by putting the nth item of each list in
