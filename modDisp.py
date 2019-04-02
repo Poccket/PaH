@@ -7,7 +7,8 @@ block = {
 }
 
 
-def as_block(text: str = "", width: int = 10, height: int = 10, heavyblocks: bool = False, docompensate: bool = True, aslist: bool = False) -> [str, List[str]]:
+def as_block(text: str = "", width: int = 10, height: int = 10, heavyblocks: bool = False, docompensate: bool = True,
+													aslist: bool = False) -> [str, List[str]]:
 	"""
 	Creates a block. containing text, of Unicode characters.
 

@@ -117,7 +117,7 @@ while True:
 	for c1 in robot_hand:
 		for c2 in robot_hand:
 			if c1 != c2 and rankcheck(c1) == rankcheck(c2) and colorcheck(c1) == colorcheck(c2):
-				ui.insertline("Robot: Got a match here!", ui_height, True, True)
+				ui.insertline("Robot: Got a match here!", ui_height, True)
 				robot_win.append(c1)
 				robot_win.append(c2)
 				robot_wins += 1
@@ -159,7 +159,8 @@ while True:
 			if not modHelper.isinteger(select):
 				print("Need to input a number!")
 		select = int(select)
-		ui.insertline("Player: Do you have a {} {}?".format(colorcheck(human_hand[select]), rankcheck(human_hand[select])), ui_height, True)
+		ui.insertline("Player: Do you have a {} {}?".format(colorcheck(human_hand[select]),
+																rankcheck(human_hand[select])), ui_height, True)
 
 		for x in robot_hand:
 			if rankcheck(x) == rankcheck(human_hand[select]) and colorcheck(x) == colorcheck(human_hand[select]):
@@ -190,7 +191,8 @@ while True:
 	else:
 		select = random.randrange(0, len(robot_hand))
 		time.sleep(2)
-		ui.insertline("Robot: Got a {} {}?".format(colorcheck(robot_hand[select]), rankcheck(robot_hand[select])), ui_height, True)
+		ui.insertline("Robot: Got a {} {}?".format(colorcheck(robot_hand[select]),
+																rankcheck(robot_hand[select])), ui_height, True)
 		gofish = True
 		for x in human_hand:
 			if rankcheck(x) == rankcheck(robot_hand[select]) and colorcheck(x) == colorcheck(robot_hand[select]):
