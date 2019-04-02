@@ -169,9 +169,13 @@ while True:
 	uiprint(doprint=True)
 	gofish = True
 	if turn:
-		select = "This isn't a number!"
-		while not modHelper.isinteger(select):
+		select = "Not a number!"
+		while not modHelper.isinteger(select) or int(select) > len(human_hand)-1:
 			select = input("Pick a card to play> ")
+			if modHelper.isinteger(select) and int(select) > len(human_hand)-1:
+				print("That number is too big!")
+			if not modHelper.isinteger(select):
+				print("Need to input a number!")
 		select = int(select)
 		uiprint("Player: Do you have a {} {}?".format(colorcheck(human_hand[select]), rankcheck(human_hand[select])), ui_height, True, True)
 
