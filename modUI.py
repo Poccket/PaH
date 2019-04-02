@@ -3,7 +3,7 @@ import shutil
 
 
 class Screen:
-	def __init__(self, width=0, height=0, ui=[], clamp=True, clear=True):
+	def __init__(self, width=0, height=0, ui=[], clamp=True, clear=True, fill=True):
 		self.width = width
 		self.height = height
 		self.ui = ui
@@ -11,6 +11,9 @@ class Screen:
 		self.clear = clear
 		if self.width == 0 and self.height == 0:
 			self.width, self.height = self.auto_size()
+		if fill:
+			for i in range(0,self.height):
+				self.ui.append("")
 
 	@staticmethod
 	def auto_size():
@@ -21,7 +24,7 @@ class Screen:
 		os.system('cls' if os.name == 'nt' else 'clear')
 
 	def changeline(self, text, line, andprint=False):
-		if self.ui[line]:
+		if line < len(self.ui):
 			self.ui[line] = text
 		else:
 			self.ui.insert(line, text)
