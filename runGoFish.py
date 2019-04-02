@@ -2,35 +2,16 @@ import modDisp
 import modFile
 import modList
 import modHelper
+import modUI
 import random
-import shutil
 import math
 import time
-import os
 
 print("---")
 print("Make sure your terminal size is large enough, or you'll get an error!")
 print("---")
 
-ui = []
-scr_columns, scr_rows = shutil.get_terminal_size((70, 100))
-for a in list(range(scr_rows)):
-	ui.append("")
-
-
-def uiprint(inp="", line=-1, push=False, doprint=False):
-	try:
-		del ui[scr_rows+1]
-	except IndexError:
-		pass
-	if push:
-		ui.insert(line, inp)
-	else:
-		ui[line] = inp
-	if doprint:
-		os.system('cls' if os.name == 'nt' else 'clear')
-		for item in reversed(ui):
-			print(item)
+ui = modUI.Screen()
 
 
 def colorcheck(inp):
@@ -109,38 +90,39 @@ robot_win = []
 human_wins = 0
 robot_wins = 0
 while True:
-	if len(human_hand) < 1:
-		uiprint("Human hand exhausted! Ending game.", ui_height, True, True)
-		break
-	if len(robot_hand) < 1:
-		uiprint("Robot hand exhausted! Ending game.", ui_height, True, True)
-		break
-	max_cards = math.floor(scr_columns / 14)
+	max_cards = math.floor(ui.width / 14)
 	rows_needed = math.ceil(len(human_hand) / max_cards)
 	ui_height = math.ceil(rows_needed * 12) + 3
 	curr_height = ui_height-4
-	uiprint("Wins: {} ROB - YOU {}".format(robot_wins, human_wins), ui_height-2)
+	ui.changeline("Wins: {} ROB - YOU {}".format(robot_wins, human_wins), ui_height-2)
+
+	if len(human_hand) < 1:
+		ui.insertline("Human hand exhausted! Ending game.", ui_height, True)
+		break
+	if len(robot_hand) < 1:
+		ui.insertline("Robot hand exhausted! Ending game.", ui_height, True)
+		break
 
 	for c1 in human_hand:
 		for c2 in human_hand:
 			if c1 != c2 and rankcheck(c1) == rankcheck(c2) and colorcheck(c1) == colorcheck(c2):
-				uiprint("Player: Match in my hand.", ui_height, True, True)
+				ui.insertline("Player: Match in my hand.", ui_height, True)
 				human_win.append(c1)
 				human_win.append(c2)
 				human_wins += 1
-				uiprint("Wins: {} ROB - YOU {}".format(robot_wins, human_wins), ui_height - 2)
-				uiprint("You have {} win(s)!".format(human_wins), ui_height, True, True)
+				ui.changeline("Wins: {} ROB - YOU {}".format(robot_wins, human_wins), ui_height - 2)
+				ui.insertline("You have {} win(s)!".format(human_wins), ui_height, True)
 				human_hand.remove(c2)
 				human_hand.remove(c1)
 	for c1 in robot_hand:
 		for c2 in robot_hand:
 			if c1 != c2 and rankcheck(c1) == rankcheck(c2) and colorcheck(c1) == colorcheck(c2):
-				uiprint("Robot: Got a match here!", ui_height, True, True)
+				ui.insertline("Robot: Got a match here!", ui_height, True, True)
 				robot_win.append(c1)
 				robot_win.append(c2)
 				robot_wins += 1
-				uiprint("Wins: {} ROB - YOU {}".format(robot_wins, human_wins), ui_height - 2)
-				uiprint("Robot has {} win(s)!".format(robot_wins), ui_height, True, True)
+				ui.changeline("Wins: {} ROB - YOU {}".format(robot_wins, human_wins), ui_height - 2)
+				ui.insertline("Robot has {} win(s)!".format(robot_wins), ui_height, True)
 				robot_hand.remove(c1)
 				robot_hand.remove(c2)
 
@@ -162,11 +144,11 @@ while True:
 					else:
 						curr_line += '  '
 					curr_line += z[y]
-			uiprint(curr_line, curr_height)
+			ui.changeline(curr_line, curr_height)
 			curr_height -= 1
 			curr_line = ""
 		row_startingCard += max_cards
-	uiprint(doprint=True)
+	ui.print()
 	gofish = True
 	if turn:
 		select = "Not a number!"
@@ -177,7 +159,7 @@ while True:
 			if not modHelper.isinteger(select):
 				print("Need to input a number!")
 		select = int(select)
-		uiprint("Player: Do you have a {} {}?".format(colorcheck(human_hand[select]), rankcheck(human_hand[select])), ui_height, True, True)
+		ui.insertline("Player: Do you have a {} {}?".format(colorcheck(human_hand[select]), rankcheck(human_hand[select])), ui_height, True)
 
 		for x in robot_hand:
 			if rankcheck(x) == rankcheck(human_hand[select]) and colorcheck(x) == colorcheck(human_hand[select]):
@@ -188,27 +170,27 @@ while True:
 				human_hand.remove(human_hand[select])
 				human_wins += 1
 				time.sleep(1)
-				uiprint("Robot: Yeah, here you go.", ui_height, True, True)
+				ui.insertline("Robot: Yeah, here you go.", ui_height, True)
 				time.sleep(1)
-				uiprint("Wins: {} ROB - YOU {}".format(robot_wins, human_wins), ui_height - 2)
-				uiprint("You have {} win(s)!".format(human_wins), ui_height, True, True)
+				ui.changeline("Wins: {} ROB - YOU {}".format(robot_wins, human_wins), ui_height - 2)
+				ui.insertline("You have {} win(s)!".format(human_wins), ui_height, True)
 				break
 
 		if gofish:
 			time.sleep(1)
-			uiprint("Robot: Sorry, I don't. Go fish.", ui_height, True, True)
+			ui.insertline("Robot: Sorry, I don't. Go fish.", ui_height, True)
 			card_in = dealcard()
 			if card_in:
 				human_hand.append(deck[card_in])
 			else:
-				uiprint("Deck is empty! Ending game.", ui_height, True, True)
+				ui.insertline("Deck is empty! Ending game.", ui_height, True)
 				break
 
 		turn = not turn
 	else:
 		select = random.randrange(0, len(robot_hand))
 		time.sleep(2)
-		uiprint("Robot: Got a {} {}?".format(colorcheck(robot_hand[select]), rankcheck(robot_hand[select])), ui_height, True, True)
+		ui.insertline("Robot: Got a {} {}?".format(colorcheck(robot_hand[select]), rankcheck(robot_hand[select])), ui_height, True)
 		gofish = True
 		for x in human_hand:
 			if rankcheck(x) == rankcheck(robot_hand[select]) and colorcheck(x) == colorcheck(robot_hand[select]):
@@ -219,27 +201,27 @@ while True:
 				robot_hand.remove(robot_hand[select])
 				robot_wins += 1
 				time.sleep(1)
-				uiprint("Player: Yup, here you go.", ui_height, True, True)
+				ui.insertline("Player: Yup, here you go.", ui_height, True)
 				time.sleep(1)
-				uiprint("Wins: {} ROB - YOU {}".format(robot_wins, human_wins), ui_height - 2)
-				uiprint("Robot has {} win(s)!".format(robot_wins), ui_height, True, True)
+				ui.changeline("Wins: {} ROB - YOU {}".format(robot_wins, human_wins), ui_height - 2)
+				ui.insertline("Robot has {} win(s)!".format(robot_wins), ui_height, True)
 				time.sleep(2)
 				break
 		if gofish:
 			time.sleep(1)
-			uiprint("Player: Don't have it, Go fish.", ui_height, True, True)
+			ui.insertline("Player: Don't have it, Go fish.", ui_height, True)
 			card_in = dealcard()
 			if card_in:
 				robot_hand.append(deck[card_in])
 			else:
-				uiprint("Deck is empty! Ending game.", ui_height, True, True)
+				ui.insertline("Deck is empty! Ending game.", ui_height, True)
 				break
 
 		turn = not turn
 
 if human_wins == robot_wins:
-	uiprint("There was a tie!", ui_height, True, True)
+	ui.insertline("There was a tie!", ui_height, True)
 elif human_wins > robot_wins:
-	uiprint("You won! Congratulations!", ui_height, True, True)
+	ui.insertline("You won! Congratulations!", ui_height, True)
 elif robot_wins > human_wins:
-	uiprint("You lost! Try again!", ui_height, True, True)
+	ui.insertline("You lost! Try again!", ui_height, True)
