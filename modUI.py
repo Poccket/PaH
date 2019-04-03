@@ -25,9 +25,10 @@ class Screen:
 		self.clamp = clamp
 		self.clear = clear
 		self.reverse = reverse
+		self.fill = fill
 		if self.width == 0 and self.height == 0:
 			self.width, self.height = self.auto_size()
-		if fill:
+		if self.fill:
 			self.clean()
 
 	@staticmethod
@@ -153,7 +154,7 @@ class Screen:
 			self.clamplines()
 		if self.clear:
 			self.emptyscreen()
-		if reverse:
+		if self.reverse:
 			for x in self.ui:
 				print(x)
 		else:
