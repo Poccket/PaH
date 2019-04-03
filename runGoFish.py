@@ -13,51 +13,45 @@ print("---")
 
 ui = modUI.Screen()
 
+suits = {
+	"colors": {
+		"Heart": "Red",
+		"Diamond": "Red",
+		"Club": "Black",
+		"Spade": "Black",
+		"JOKER": "Joker"
+	},
+	"cards": {
+		"Ace": "ace",
+		"King": "king",
+		"Queen": "queen",
+		"Jack": "jack",
+		"Ten": "ten",
+		"Nine": "nine",
+		"Eight": "eight",
+		"Seven": "seven",
+		"Six": "six",
+		"Five": "five",
+		"Four": "four",
+		"Three": "three",
+		"Two": "two"
+
+	}
+}
+
 
 def colorcheck(inp):
-	if "Heart" in inp:
-		return "Red"
-	if "Diamond" in inp:
-		return "Red"
-	if "Club" in inp:
-		return "Black"
-	if "Spade" in inp:
-		return "Black"
-	if "JOKER" in inp:
-		return ""
-	return "UH OH SOMETHINGS BROKEN"
+	for card, color in suits["colors"].items():
+		if card in inp:
+			return color
+	return "Error"
 
 
 def rankcheck(inp):
-	if "Ace" in inp:
-		return "ace"
-	if "King" in inp:
-		return "King"
-	if "Queen" in inp:
-		return "Queen"
-	if "Jack" in inp:
-		return "Jack"
-	if "Ten" in inp:
-		return "ten"
-	if "Nine" in inp:
-		return "nine"
-	if "Eight" in inp:
-		return "eight"
-	if "Seven" in inp:
-		return "seven"
-	if "Six" in inp:
-		return "six"
-	if "Five" in inp:
-		return "five"
-	if "Four" in inp:
-		return "four"
-	if "Three" in inp:
-		return "three"
-	if "Two" in inp:
-		return "two"
-	if "JOKER" in inp:
-		return "Joker"
-	return "UH OH SOMETHINGS BROKEN"
+	for card, color in suits["cards"].items():
+		if card in inp:
+			return color
+	return "Error"
 
 
 deck = modFile.read_list("decks/cardFrench.txt")
