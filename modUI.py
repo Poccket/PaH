@@ -53,68 +53,48 @@ class Screen:
 		"""
 		os.system('cls' if os.name == 'nt' else 'clear')
 
-	def changeline(self, text, line, andprint=False):
+	def line(self, line, method="", text="", andprint=False):
 		"""
-		Changes a line in the self.ui array.
+		Modifies a line depending on the method specified
 
-		While it seems like it could simply be done by changing it, this method includes a check and the ability to
-		print in the same function
+		insert
+			Inserts a line, creating a new line at the index specified.
 
-		:param text: The text to be set on the line
-		:param line: The line to set the text to
+		change
+			Overwrites the line at the index specified, if no line is here, it creates one.
+
+		delete
+			Deletes the line at the index specified if it exists.
+
+		clear
+			Clears a line
+
+		Will always return the line specified, even if there is no method set.
+
+		:param line: Line to modify
+		:param method: insert, change, delete, clear
+		:param text: Text for insert or change methods
 		:param andprint: Whether or not to print when calling
-		:return: None
+		:return: Returns line
 		"""
-		if line < len(self.ui):
-			self.ui[line] = text
-		else:
+		if method.lower() == 'insert':
 			self.ui.insert(line, text)
+		if method.lower() == 'change':
+			if line < len(self.ui):
+				self.ui[line] = text
+			else:
+				self.ui.insert(line, text)
+		if method.lower() == 'delete':
+			if self.ui[line]:
+				del self.ui[line]
+		if method.lower() == 'clear':
+			if self.ui[line]:
+				self.ui[line] = ""
+			else:
+				self.ui.insert(line, "")
 		if andprint:
 			self.print()
-
-	def insertline(self, text, line, andprint=False):
-		"""
-		Inserts a line into the self.ui array.
-
-		This method is included for the ease of printing in the same line.
-
-		:param text: The text to insert
-		:param line: The line to insert to
-		:param andprint: Whether or not to print when calling
-		:return: None
-		"""
-		self.ui.insert(line, text)
-		if andprint:
-			self.print()
-
-	def deleteline(self, line, andprint=False):
-		"""
-		Deletes a line, removing it from the self.ui array.
-
-		This method is included for the ease of printing in the same line.
-
-		:param line: The line to delete
-		:param andprint: Whether or not to print when calling
-		:return: None
-		"""
-		del self.ui[line]
-		if andprint:
-			self.print()
-
-	def emptyline(self, line, andprint=False):
-		"""
-		Sets a line to blank if it exsits
-
-		This method is included for the ease of printing in the same line.
-
-		:param line: The line to empty
-		:param andprint: Whether or not to print when calling
-		:return: None
-		"""
-		if self.ui[line]:
-			self.ui[line] = ""
-		if andprint:
-			self.print()
+		return self.ui[line]
 
 	def clamplines(self):
 		"""
