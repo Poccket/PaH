@@ -80,16 +80,27 @@ while len(available) > 44:
 		robot_hand.append(deck[dealcard()])
 	turn = not turn
 
-human_win = []
-robot_win = []
-human_wins = 0
-robot_wins = 0
+human_matches = []
+robot_matches = []
+human_match_count = math.ceil(len(human_matches) / 2)
+robot_match_count = math.ceil(len(robot_matches) / 2)
+
+
+def update_scores():
+	global human_match_count
+	global robot_match_count
+	human_match_count = math.ceil(len(human_matches) / 2)
+	robot_match_count = math.ceil(len(robot_matches) / 2)
+
+
 while True:
+	update_scores()
 	max_cards = math.floor(ui.width / 14)
 	rows_needed = math.ceil(len(human_hand) / max_cards)
 	ui_height = math.ceil(rows_needed * 12) + 3
 	curr_height = ui_height-4
-	ui.changeline("Wins: {} ROB - YOU {}".format(robot_wins, human_wins), ui_height-2)
+	ui.changeline("Wins: {} ROB - YOU {}    Deck: {} cards".format(robot_match_count, human_match_count,
+															len(available)), ui_height-2)
 
 	if len(human_hand) < 1:
 		ui.insertline("Human hand exhausted! Ending game.", ui_height, True)
@@ -102,24 +113,21 @@ while True:
 		for c2 in human_hand:
 			if c1 != c2 and rankcheck(c1) == rankcheck(c2) and colorcheck(c1) == colorcheck(c2):
 				ui.insertline("Player: Match in my hand.", ui_height, True)
-				human_win.append(c1)
-				human_win.append(c2)
-				human_wins += 1
-				ui.changeline("Wins: {} ROB - YOU {}".format(robot_wins, human_wins), ui_height - 2)
-				ui.insertline("You have {} win(s)!".format(human_wins), ui_height, True)
-				human_hand.remove(c2)
-				human_hand.remove(c1)
+				human_matches.extend((c1, c2))
+				human_hand = [e for e in human_hand if e not in (c1, c2)]
+				update_scores()
+				ui.changeline("Wins: {} ROB - YOU {}    Deck: {} cards".format(robot_match_count, human_match_count,
+																		len(available)), ui_height - 2)
+				ui.insertline("You have {} win(s)!".format(human_match_count), ui_height, True)
 	for c1 in robot_hand:
 		for c2 in robot_hand:
 			if c1 != c2 and rankcheck(c1) == rankcheck(c2) and colorcheck(c1) == colorcheck(c2):
 				ui.insertline("Robot: Got a match here!", ui_height, True)
-				robot_win.append(c1)
-				robot_win.append(c2)
-				robot_wins += 1
-				ui.changeline("Wins: {} ROB - YOU {}".format(robot_wins, human_wins), ui_height - 2)
-				ui.insertline("Robot has {} win(s)!".format(robot_wins), ui_height, True)
-				robot_hand.remove(c1)
-				robot_hand.remove(c2)
+				robot_matches.extend((c1, c2))
+				robot_hand = [e for e in robot_hand if e not in (c1, c2)]
+				update_scores()
+				ui.changeline("Wins: {} ROB - YOU {}    Deck: {} cards".format(robot_match_count, human_match_count,
+																		len(available)), ui_height - 2)
 
 	hand_blocks = []
 	for x in human_hand:
@@ -160,16 +168,16 @@ while True:
 		for x in robot_hand:
 			if rankcheck(x) == rankcheck(human_hand[select]) and colorcheck(x) == colorcheck(human_hand[select]):
 				gofish = False
-				human_win.append(x)
-				robot_hand.remove(x)
-				human_win.append(human_hand[select])
-				human_hand.remove(human_hand[select])
-				human_wins += 1
+				human_matches.extend((x, human_hand[select]))
+				robot_hand = [e for e in robot_hand if e not in (x, '')]
+				human_hand = [e for e in human_hand if e not in (human_hand[select])]
 				time.sleep(1)
 				ui.insertline("Robot: Yeah, here you go.", ui_height, True)
 				time.sleep(1)
-				ui.changeline("Wins: {} ROB - YOU {}".format(robot_wins, human_wins), ui_height - 2)
-				ui.insertline("You have {} win(s)!".format(human_wins), ui_height, True)
+				update_scores()
+				ui.changeline("Wins: {} ROB - YOU {}    Deck: {} cards".format(robot_match_count, human_match_count,
+																		len(available)), ui_height - 2)
+				ui.insertline("You have {} win(s)!".format(human_match_count), ui_height, True)
 				break
 
 		if gofish:
@@ -192,16 +200,15 @@ while True:
 		for x in human_hand:
 			if rankcheck(x) == rankcheck(robot_hand[select]) and colorcheck(x) == colorcheck(robot_hand[select]):
 				gofish = False
-				robot_win.append(x)
-				human_hand.remove(x)
-				robot_win.append(robot_hand[select])
-				robot_hand.remove(robot_hand[select])
-				robot_wins += 1
+				robot_matches.extend((x, robot_hand[select]))
+				robot_hand = [e for e in robot_hand if e not in (robot_hand[select])]
+				human_hand = [e for e in human_hand if e not in (x, '')]
 				time.sleep(1)
 				ui.insertline("Player: Yup, here you go.", ui_height, True)
 				time.sleep(1)
-				ui.changeline("Wins: {} ROB - YOU {}".format(robot_wins, human_wins), ui_height - 2)
-				ui.insertline("Robot has {} win(s)!".format(robot_wins), ui_height, True)
+				update_scores()
+				ui.changeline("Wins: {} ROB - YOU {}    Deck: {} cards".format(robot_match_count, human_match_count,
+																		len(available)), ui_height - 2)
 				time.sleep(2)
 				break
 		if gofish:
@@ -216,9 +223,11 @@ while True:
 
 		turn = not turn
 
-if human_wins == robot_wins:
+update_scores()
+if human_match_count == robot_match_count:
 	ui.insertline("There was a tie!", ui_height, True)
-elif human_wins > robot_wins:
+elif human_match_count > robot_match_count:
 	ui.insertline("You won! Congratulations!", ui_height, True)
-elif robot_wins > human_wins:
+elif robot_match_count > human_match_count:
 	ui.insertline("You lost! Try again!", ui_height, True)
+ui.print()
