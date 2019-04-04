@@ -6,6 +6,9 @@ import modUI
 import random
 import math
 import time
+# import os
+
+# os.system('mode con: cols=120 lines=40')
 
 print("---")
 print("Make sure your terminal size is large enough, or you'll get an error!")
