@@ -19,7 +19,7 @@ suits = {
 		"Diamond": "Red",
 		"Club": "Black",
 		"Spade": "Black",
-		"JOKER": "Joker"
+		"JOKER": "wild"
 	},
 	"cards": {
 		"Ace": "ace",
@@ -34,7 +34,8 @@ suits = {
 		"Five": "five",
 		"Four": "four",
 		"Three": "three",
-		"Two": "two"
+		"Two": "two",
+		"JOKER": "card"
 
 	}
 }
