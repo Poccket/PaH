@@ -102,8 +102,8 @@ while True:
 	rows_needed = math.ceil(len(human_hand) / max_cards)
 	ui_height = math.ceil(rows_needed * 12) + 3
 	curr_height = ui_height-4
-	ui.changeline("Wins: {} ROB - YOU {}    Deck: {} cards".format(robot_match_count, human_match_count,
-															len(available)), ui_height-2)
+	ui.line(ui_height-2, "change", "Wins: {} ROB - YOU {}    Deck: {} cards".format(robot_match_count,
+																				human_match_count, len(available)))
 
 	if len(human_hand) < 1:
 		ui.insertline("Human hand exhausted! Ending game.", ui_height, True)
