@@ -7,7 +7,8 @@ This module contains functions for a very basic text-based output
 
 
 class Screen:
-	def __init__(self, width=0, height=0, ui=[], clamp=True, clear=True, fill=True, reverse=False):
+	def __init__(self, width: int = 0, height: int = 0, ui: list = None, clamp: bool = True, clear: bool = True,
+														fill: bool = True, reverse: bool = False):
 		"""
 		Initializes the class 'Screen'
 
@@ -32,7 +33,7 @@ class Screen:
 			self.clean()
 
 	@staticmethod
-	def auto_size():
+	def auto_size() -> os.terminal_size:
 		"""
 		Automatically gets the size of the Screen
 
@@ -43,17 +44,18 @@ class Screen:
 		return shutil.get_terminal_size((70, 100))
 
 	@staticmethod
-	def emptyscreen():
+	def emptyscreen() -> int:
 		"""
 		Runs OS clear command.
 
 		This method is called if self.clear is set when printing, but is set here to allow calling outside of that.
 
-		:return: None
+		:return: 0 if successful
 		"""
 		os.system('cls' if os.name == 'nt' else 'clear')
+		return 0
 
-	def line(self, line, method="", text="", andprint=False):
+	def line(self, line: int, method: str = "", text: str = "", andprint: bool = False) -> str:
 		"""
 		Modifies a line depending on the method specified
 
@@ -96,26 +98,27 @@ class Screen:
 			self.print()
 		return self.ui[line]
 
-	def clamplines(self):
+	def clamplines(self) -> int:
 		"""
 		Clamps the self.ui to only be as long as the height of the terminal
 
 		This method removes all items that exceed this length.
 
-		:return: None
+		:return: 0 if successful
 		"""
 		for i, x in reversed(list(enumerate(self.ui))):
 			if i > self.height-2:
 				del self.ui[i]
+		return 0
 
-	def clean(self, andprint=False):
+	def clean(self, andprint: bool = False) -> int:
 		"""
 		This method empties the self.ui array.
 
 		This method is included for ease, and to allow printing in the same line.
 
 		:param andprint: Whether or not to print when calling
-		:return: None
+		:return: 0 if successful
 		"""
 		self.ui = []
 		if andprint:
@@ -123,12 +126,13 @@ class Screen:
 		if self.fill:
 			for i in range(0, self.height):
 				self.ui.append("")
+		return 0
 
-	def print(self):
+	def print(self) -> int:
 		"""
 		Prints the self.ui array, with 0 as the bottom unless 'reverse' is set.
 
-		:return: None
+		:return: 0 if successful
 		"""
 		if self.clamp:
 			self.clamplines()
@@ -140,3 +144,4 @@ class Screen:
 		else:
 			for x in reversed(self.ui):
 				print(x)
+		return 0
