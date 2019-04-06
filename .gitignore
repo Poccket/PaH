@@ -5,3 +5,4 @@ build
 *.spec
 dist
 release
+make.bat
