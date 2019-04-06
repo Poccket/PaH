@@ -96,7 +96,10 @@ class Screen:
 				self.ui.insert(line, "  ")
 		if andprint:
 			self.print()
-		return self.ui[line]
+		if line < len(self.ui):
+			return self.ui[line]
+		else:
+			return 1
 
 	def clamplines(self) -> int:
 		"""
@@ -121,11 +124,11 @@ class Screen:
 		:return: 0 if successful
 		"""
 		self.ui = []
-		if andprint:
-			self.print()
 		if self.fill:
 			for i in range(0, self.height):
 				self.ui.append("")
+		if andprint:
+			self.print()
 		return 0
 
 	def print(self) -> int:
