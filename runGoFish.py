@@ -23,6 +23,7 @@ system = modPlayers.Player("System", groups=['system'])
 messages = []
 chat_height = 0
 curr_height = 0
+max_cards = 0
 
 deck = modFile.read_list("decks/cardFrench.txt")
 available = list(range(len(deck)))
@@ -98,6 +99,7 @@ def send(usr, msg):
 def printhand():
 	global curr_height
 	global chat_height
+	global max_cards
 
 	# -- UI Variables --
 	# The amount of cards that can fit on one row
@@ -159,25 +161,33 @@ def update_scores():
 									.format(f'{human_match_count:02}', f'{robot_match_count:02}'))
 
 
+def end_score():
+	if human_match_count == robot_match_count:
+		send(system, "There was a tie!")
+	elif human_match_count > robot_match_count:
+		send(system, "You won! Congratulations!")
+	elif robot_match_count > human_match_count:
+		send(system, "You lost! Try again!")
+	input("Press enter to view matches> ")
+	human_player.hands['hand'] = human_player.hands['matches']
+	ui.height = (math.ceil(len(human_player.hands['matches']) / max_cards) + 1) * 12
+	ui.clean()
+	printhand()
+
+
 while True:
 	# -- Win conditions --
 	# If human player's hand is empty
 	if len(human_player.hands['hand']) < 1:
 		send(system, "Human hand exhausted! Ending game.")
-		human_player.hands['hand'] = human_player.hands['matches']
-		printhand()
 		break
 	# If robot player's hand is empty
 	if len(robot_player.hands['hand']) < 1:
 		send(system, "Robot hand exhausted! Ending game.")
-		human_player.hands['hand'] = human_player.hands['matches']
-		printhand()
 		break
 	# If deck is empty
 	if len(available) < 0:
 		send(system, "Deck exhausted! Ending game.")
-		human_player.hands['hand'] = human_player.hands['matches']
-		printhand()
 		break
 
 	# -- Match checking --
@@ -201,7 +211,6 @@ while True:
 	printhand()
 	# Update scores
 	update_scores()
-
 
 	gofish = True
 	if turn:
@@ -263,12 +272,5 @@ while True:
 
 		turn = not turn
 
-if human_match_count == robot_match_count:
-	send(system, "There was a tie!")
-elif human_match_count > robot_match_count:
-	send(system, "You won! Congratulations!")
-elif robot_match_count > human_match_count:
-	send(system, "You lost! Try again!")
-ui.print()
-
+end_score()
 input("Press enter to exit>")
