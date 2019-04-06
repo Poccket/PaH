@@ -87,13 +87,13 @@ class Screen:
 			else:
 				self.ui.insert(line, text)
 		if method.lower() == 'delete':
-			if self.ui[line]:
+			if line < len(self.ui):
 				del self.ui[line]
 		if method.lower() == 'clear':
-			if self.ui[line]:
-				self.ui[line] = ""
+			if line < len(self.ui):
+				self.ui[line] = "  "
 			else:
-				self.ui.insert(line, "")
+				self.ui.insert(line, "  ")
 		if andprint:
 			self.print()
 		return self.ui[line]
