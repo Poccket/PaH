@@ -87,7 +87,9 @@ def send(usr, msg):
 	if len(messages) > 20:
 		del messages[0]
 	for a in range(chat_height, ui.height):
-		ui.line(chat_height, "clear")
+		ui.line(a, "clear")
+	ui.line(chat_height-1, "clear")
+	ui.line(chat_height-5, "clear")
 	for msg in messages:
 		ui.line(chat_height, "insert", msg)
 	ui.print()
@@ -104,8 +106,8 @@ def printhand():
 	rows_needed = math.ceil(len(human_player.hands['hand']) / max_cards)
 	# The height that the cards will start printing at.
 	curr_height = math.ceil(rows_needed * 12)-1
-	# Exactly 4 rows above the cards (Where chat is printed)
-	chat_height = math.ceil(rows_needed * 12) + 3
+	# Exactly 6 rows above the cards (Where chat is printed)
+	chat_height = math.ceil(rows_needed * 12) + 5
 
 	hand_blocks = []
 	for i in human_player.hands['hand']:
@@ -147,7 +149,14 @@ def update_scores():
 	global human_match_count
 	global robot_match_count
 	human_match_count = math.ceil(len(human_player.hands['matches']) / 2)
+	human_hand_count = len(human_player.hands['hand'])
 	robot_match_count = math.ceil(len(robot_player.hands['matches']) / 2)
+	robot_hand_count = len(robot_player.hands['hand'])
+	ui.line(chat_height-2, "change", "     PLAY   ROBO   DECK")
+	ui.line(chat_height-3, "change", "HAND  {}     {}     {} "
+									.format(f'{human_hand_count:02}', f'{robot_hand_count:02}', len(available)))
+	ui.line(chat_height-4, "change", "WINS  {}     {}"
+									.format(f'{human_match_count:02}', f'{robot_match_count:02}'))
 
 
 while True:
@@ -180,8 +189,6 @@ while True:
 				human_player.hands['matches'].extend((c1, c2))
 				human_player.hands['hand'] = [e for e in human_player.hands['hand'] if e not in (c1, c2)]
 				update_scores()
-				ui.line(chat_height-2, "change", "Wins: {} ROB - YOU {}    Deck: {} cards"
-												.format(robot_match_count, human_match_count, len(available)))
 	# Check for matches in the robot's hand.
 	for c1 in robot_player.hands['hand']:
 		for c2 in robot_player.hands['hand']:
@@ -190,14 +197,11 @@ while True:
 				robot_player.hands['matches'].extend((c1, c2))
 				robot_player.hands['hand'] = [e for e in robot_player.hands['hand'] if e not in (c1, c2)]
 				update_scores()
-				ui.line(chat_height-2, "change", "Wins: {} ROB - YOU {}    Deck: {} cards"
-												.format(robot_match_count, human_match_count, len(available)))
 
 	printhand()
 	# Update scores
 	update_scores()
-	ui.line(chat_height-2, "change", "Wins: {} ROB - YOU {}    Deck: {} cards"
-									.format(robot_match_count, human_match_count, len(available)))
+
 
 	gofish = True
 	if turn:
@@ -222,8 +226,6 @@ while True:
 				send(robot_player, "Yeah, here you go.")
 				time.sleep(1)
 				update_scores()
-				ui.line(chat_height-2, "change", "Wins: {} ROB - YOU {}    Deck: {} cards"
-												.format(robot_match_count, human_match_count, len(available)))
 				break
 
 		if gofish:
@@ -250,8 +252,6 @@ while True:
 				send(human_player, "Yup, here you go.")
 				time.sleep(1)
 				update_scores()
-				ui.line(chat_height-2, "change", "Wins: {} ROB - YOU {}    Deck: {} cards"
-												.format(robot_match_count, human_match_count, len(available)))
 				time.sleep(2)
 				break
 		if gofish:
