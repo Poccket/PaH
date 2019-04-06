@@ -102,35 +102,35 @@ while True:
 	rows_needed = math.ceil(len(human_hand) / max_cards)
 	ui_height = math.ceil(rows_needed * 12) + 3
 	curr_height = ui_height-4
-	ui.line(ui_height-2, "change", "Wins: {} ROB - YOU {}    Deck: {} cards".format(robot_match_count,
-																				human_match_count, len(available)))
+	ui.line(ui_height-2, "change", "Wins: {} ROB - YOU {}    Deck: {} cards"
+									.format(robot_match_count, human_match_count, len(available)))
 
 	if len(human_hand) < 1:
-		ui.insertline("Human hand exhausted! Ending game.", ui_height, True)
+		ui.line(ui_height, "insert", "Human hand exhausted! Ending game.", True)
 		break
 	if len(robot_hand) < 1:
-		ui.insertline("Robot hand exhausted! Ending game.", ui_height, True)
+		ui.line(ui_height, "insert", "Robot hand exhausted! Ending game.", True)
 		break
 
 	for c1 in human_hand:
 		for c2 in human_hand:
 			if c1 != c2 and rankcheck(c1) == rankcheck(c2) and colorcheck(c1) == colorcheck(c2):
-				ui.insertline("Player: Match in my hand.", ui_height, True)
+				ui.line(ui_height, "insert", "Player: Match in my hand.", True)
 				human_matches.extend((c1, c2))
 				human_hand = [e for e in human_hand if e not in (c1, c2)]
 				update_scores()
-				ui.changeline("Wins: {} ROB - YOU {}    Deck: {} cards".format(robot_match_count, human_match_count,
-																		len(available)), ui_height - 2)
-				ui.insertline("You have {} win(s)!".format(human_match_count), ui_height, True)
+				ui.line(ui_height-2, "change", "Wins: {} ROB - YOU {}    Deck: {} cards"
+												.format(robot_match_count, human_match_count, len(available)))
+				ui.line(ui_height, "insert", "You have {} win(s)!".format(human_match_count), True)
 	for c1 in robot_hand:
 		for c2 in robot_hand:
 			if c1 != c2 and rankcheck(c1) == rankcheck(c2) and colorcheck(c1) == colorcheck(c2):
-				ui.insertline("Robot: Got a match here!", ui_height, True)
+				ui.line(ui_height, "insert", "Robot: Got a match here!", True)
 				robot_matches.extend((c1, c2))
 				robot_hand = [e for e in robot_hand if e not in (c1, c2)]
 				update_scores()
-				ui.changeline("Wins: {} ROB - YOU {}    Deck: {} cards".format(robot_match_count, human_match_count,
-																		len(available)), ui_height - 2)
+				ui.line(ui_height-2, "change", "Wins: {} ROB - YOU {}    Deck: {} cards"
+												.format(robot_match_count, human_match_count, len(available)))
 
 	hand_blocks = []
 	for x in human_hand:
@@ -150,7 +150,7 @@ while True:
 					else:
 						curr_line += '  '
 					curr_line += z[y]
-			ui.changeline(curr_line, curr_height)
+			ui.line(curr_height, "change", curr_line)
 			curr_height -= 1
 			curr_line = ""
 		row_startingCard += max_cards
@@ -165,8 +165,8 @@ while True:
 			if not modHelper.isinteger(select):
 				print("Need to input a number!")
 		select = int(select)
-		ui.insertline("Player: Do you have a {} {}?".format(colorcheck(human_hand[select]),
-																rankcheck(human_hand[select])), ui_height, True)
+		ui.line(ui_height, "insert", "Player: Do you have a {} {}?"
+										.format(colorcheck(human_hand[select]), rankcheck(human_hand[select])), True)
 
 		for x in robot_hand:
 			if rankcheck(x) == rankcheck(human_hand[select]) and colorcheck(x) == colorcheck(human_hand[select]):
@@ -175,30 +175,30 @@ while True:
 				robot_hand = [e for e in robot_hand if e not in (x, '')]
 				human_hand = [e for e in human_hand if e not in (human_hand[select])]
 				time.sleep(1)
-				ui.insertline("Robot: Yeah, here you go.", ui_height, True)
+				ui.line(ui_height, "insert", "Robot: Yeah, here you go.", True)
 				time.sleep(1)
 				update_scores()
-				ui.changeline("Wins: {} ROB - YOU {}    Deck: {} cards".format(robot_match_count, human_match_count,
-																		len(available)), ui_height - 2)
-				ui.insertline("You have {} win(s)!".format(human_match_count), ui_height, True)
+				ui.line(ui_height-2, "change", "Wins: {} ROB - YOU {}    Deck: {} cards"
+												.format(robot_match_count, human_match_count, len(available)))
+				ui.line(ui_height, "insert", "You have {} win(s)!".format(human_match_count), True)
 				break
 
 		if gofish:
 			time.sleep(1)
-			ui.insertline("Robot: Sorry, I don't. Go fish.", ui_height, True)
+			ui.line(ui_height, "insert", "Robot: Sorry, I don't. Go fish.", True)
 			card_in = dealcard()
 			if card_in:
 				human_hand.append(deck[card_in])
 			else:
-				ui.insertline("Deck is empty! Ending game.", ui_height, True)
+				ui.line(ui_height, "insert", "Deck is empty! Ending game.", True)
 				break
 
 		turn = not turn
 	else:
 		select = random.randrange(0, len(robot_hand))
 		time.sleep(2)
-		ui.insertline("Robot: Got a {} {}?".format(colorcheck(robot_hand[select]),
-																rankcheck(robot_hand[select])), ui_height, True)
+		ui.line(ui_height, "insert", "Robot: Got a {} {}?"
+										.format(colorcheck(robot_hand[select]), rankcheck(robot_hand[select])), True)
 		gofish = True
 		for x in human_hand:
 			if rankcheck(x) == rankcheck(robot_hand[select]) and colorcheck(x) == colorcheck(robot_hand[select]):
@@ -207,30 +207,30 @@ while True:
 				robot_hand = [e for e in robot_hand if e not in (robot_hand[select])]
 				human_hand = [e for e in human_hand if e not in (x, '')]
 				time.sleep(1)
-				ui.insertline("Player: Yup, here you go.", ui_height, True)
+				ui.line(ui_height, "insert", "Player: Yup, here you go.", True)
 				time.sleep(1)
 				update_scores()
-				ui.changeline("Wins: {} ROB - YOU {}    Deck: {} cards".format(robot_match_count, human_match_count,
-																		len(available)), ui_height - 2)
+				ui.line(ui_height-2, "change", "Wins: {} ROB - YOU {}    Deck: {} cards"
+												.format(robot_match_count, human_match_count, len(available)))
 				time.sleep(2)
 				break
 		if gofish:
 			time.sleep(1)
-			ui.insertline("Player: Don't have it, Go fish.", ui_height, True)
+			ui.line(ui_height, "insert", "Player: Don't have it, Go fish.", True)
 			card_in = dealcard()
 			if card_in:
 				robot_hand.append(deck[card_in])
 			else:
-				ui.insertline("Deck is empty! Ending game.", ui_height, True)
+				ui.line(ui_height, "insert", "Deck is empty! Ending game.", True)
 				break
 
 		turn = not turn
 
 update_scores()
 if human_match_count == robot_match_count:
-	ui.insertline("There was a tie!", ui_height, True)
+	ui.line(ui_height, "insert", "There was a tie!", True)
 elif human_match_count > robot_match_count:
-	ui.insertline("You won! Congratulations!", ui_height, True)
+	ui.line(ui_height, "insert", "You won! Congratulations!", True)
 elif robot_match_count > human_match_count:
-	ui.insertline("You lost! Try again!", ui_height, True)
+	ui.line(ui_height, "insert", "You lost! Try again!", True)
 ui.print()
