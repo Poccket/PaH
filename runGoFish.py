@@ -7,13 +7,9 @@ import modPlayers
 import random
 import math
 import time
-# import os
 
-# os.system('mode con: cols=120 lines=40')
-
-print("---")
 print("Make sure your terminal size is large enough, or you'll get an error!")
-print("---")
+input("Get your window to a comfortable size, then press enter! ")
 
 ui = modUI.Screen()
 human_player = modPlayers.Player("Player", {'hand': [], 'matches': []})
