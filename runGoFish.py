@@ -270,3 +270,5 @@ elif human_match_count > robot_match_count:
 elif robot_match_count > human_match_count:
 	send(system, "You lost! Try again!")
 ui.print()
+
+input("Press enter to exit>")
