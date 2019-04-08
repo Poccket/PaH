@@ -80,11 +80,12 @@ def dealcard():
 
 def send(usr, msg):
     global chat_height
-    messages.append("<" + usr.name + "> " + msg)
-    if len(messages) > 20:
-        del messages[0]
-    for a in range(chat_height, ui.height):
-        ui.line(a, "clear")
+    if msg is not None:
+        messages.append("<" + usr.name + "> " + msg)
+        if len(messages) > 20:
+            del messages[0]
+        for a in range(chat_height, ui.height):
+            ui.line(a, "clear")
     ui.line(chat_height-1, "clear")
     ui.line(chat_height-5, "clear")
     for msg in messages:
@@ -96,7 +97,6 @@ def printhand():
     global curr_height
     global chat_height
     global max_cards
-
     # -- UI Variables --
     # The amount of cards that can fit on one row
     max_cards = math.floor(ui.width / 14)
@@ -116,6 +116,7 @@ def printhand():
     startrow = 0
 
     curr_line = ""
+    ui.clean()
     for i in range(0, rows_needed):
         for z in hand_display:
             for y in range(startrow, max_cards+startrow):
@@ -129,6 +130,8 @@ def printhand():
             curr_height -= 1
             curr_line = ""
         startrow += max_cards
+    update_scores()
+    send(None, None)
     ui.print()
 
 
