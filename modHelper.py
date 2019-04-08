@@ -12,7 +12,7 @@ def is_int(inp) -> bool:
         return True
     except ValueError:
         return False
-    # Simply a helper function that checks if 'inp' can be run through 'int()'
+    # Simply a helper function that checks if 'inp' can be run through 'int().'
 
     # Imagine we have a, which is "1", making it a string. This means 'int(a)' would work, however, if we did something
     # like 'return type(a) is int' wouldn't, despite the fact that it could work as an int.
