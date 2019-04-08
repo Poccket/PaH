@@ -109,9 +109,9 @@ def printhand():
 
     hand_blocks = []
     for i in human_player.hands['hand']:
-        hand_blocks.append(modDisp.as_block(i, aslist=True))
+        hand_blocks.append(modDisp.as_block(i, aslist=True, blockset="arc"))
 
-    hand_display = modList.merge_alternate(hand_blocks, endchar="list")
+    hand_display = modList.merge_alternate(hand_blocks, 'm')
 
     startrow = 0
 
@@ -121,9 +121,9 @@ def printhand():
             for y in range(startrow, max_cards+startrow):
                 if y < len(z):
                     if z == hand_display[0]:
-                        curr_line += f'{y:02}'
+                        curr_line += ' ' + f'{y:02}'
                     else:
-                        curr_line += '  '
+                        curr_line += '   '
                     curr_line += z[y]
             ui.line(curr_height, "change", curr_line)
             curr_height -= 1
@@ -211,11 +211,11 @@ while True:
     gofish = True
     if turn:
         select = "Not a number!"
-        while not modHelper.isinteger(select) or int(select) > len(human_player.hands['hand'])-1:
+        while not modHelper.is_int(select) or int(select) > len(human_player.hands['hand'])-1:
             select = input("Pick a card to play> ")
-            if modHelper.isinteger(select) and int(select) > len(human_player.hands['hand'])-1:
+            if modHelper.is_int(select) and int(select) > len(human_player.hands['hand'])-1:
                 print("That number is too big!")
-            if not modHelper.isinteger(select):
+            if not modHelper.is_int(select):
                 print("Need to input a number!")
         select = int(select)
         send(human_player, "Do you have a {} {}?"
