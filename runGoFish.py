@@ -281,7 +281,15 @@ while True:
             if keyp_2 == 'select':
                 finish = not finish
             if keyp_2 == 'escape':
-                sys.exit()
+                printhand(select)
+                conf = None
+                while conf not in ['y', 'n']:
+                    conf = input("are you sure you want to exit? [y/n] ")
+                    conf = conf.lower()[:1]
+                if conf == 'y':
+                    sys.exit()
+                else:
+                    continue
         send(human_player, "Do you have a {} {}?"
              .format(colorcheck(human_player.hands['hand'][select]), rankcheck(human_player.hands['hand'][select])))
 
