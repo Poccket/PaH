@@ -16,15 +16,11 @@ human_player = modPlayers.Player("Player", {'hand': [], 'matches': []})
 robot_player = modPlayers.Player("Robot", {'hand': [], 'matches': []})
 system = modPlayers.Player("System", groups=['system'])
 
-messages = []
-chat_height = 0
-curr_height = 0
-max_cards = 0
-
 deck = modFile.read_list("decks/cardFrench.txt")
-available = list(range(len(deck)))
 turn = True
 control_scheme = True
+wins_in_session = 0
+loss_in_session = 0
 
 
 def menu_print(selection: int = 1):
@@ -49,33 +45,6 @@ def menu_print(selection: int = 1):
         ui.line(ui_mid, "insert", item)
     ui.print()
 
-
-finish = False
-select = 1
-while not finish:
-    menu_print(select)
-    keyp = None
-    while keyp not in ['up', 'down', 'select']:
-        keyp = modGetch.get_arrow()
-    if keyp == 'up':
-        if select > 1:
-            select = select - 1
-        else:
-            select = 4
-    if keyp == 'down':
-        if select < 4:
-            select = select + 1
-        else:
-            select = 1
-    if keyp == 'select':
-        if select == 1:
-            finish = not finish
-        if select == 2:
-            ui.width, ui.hieght = ui.auto_size()
-        if select == 3:
-            control_scheme = not control_scheme
-        if select == 4:
-            sys.exit()
 
 suits = {
     "colors": {
@@ -211,17 +180,6 @@ def printhand(selected: [list, int] = None):
     ui.print()
 
 
-while len(available) > 44:
-    if turn:
-        human_player.hands['hand'].append(deck[dealcard()])
-    else:
-        robot_player.hands['hand'].append(deck[dealcard()])
-    turn = not turn
-
-human_match_count = 0
-robot_match_count = 0
-
-
 def update_scores():
     global human_match_count
     global robot_match_count
@@ -237,123 +195,236 @@ def update_scores():
 
 
 def end_score():
+    global wins_in_session
+    global loss_in_session
     if human_match_count == robot_match_count:
         send(system, "There was a tie!")
     elif human_match_count > robot_match_count:
         send(system, "You won! Congratulations!")
+        wins_in_session += 1
     elif robot_match_count > human_match_count:
         send(system, "You lost! Try again!")
+        loss_in_session += 1
     input("Press enter to view matches ]")
     human_player.hands['hand'] = human_player.hands['matches']
-    ui.height = (math.ceil(len(human_player.hands['matches']) / max_cards) + 1) * 12
-    ui.clean()
-    printhand()
+    if len(human_player.hands['matches']) != 0:
+        ui.height = (math.ceil(len(human_player.hands['matches']) / max_cards) + 1) * 12
+        ui.clean()
+        printhand()
+    else:
+        print("No matches! :(")
 
 
 while True:
-    # -- Win conditions --
-    # If human player's hand is empty
-    if len(human_player.hands['hand']) < 1:
-        send(system, "Human hand exhausted! Ending game.")
-        break
-    # If robot player's hand is empty
-    if len(robot_player.hands['hand']) < 1:
-        send(system, "Robot hand exhausted! Ending game.")
-        break
-    # If deck is empty
-    if len(available) < 0:
-        send(system, "Deck exhausted! Ending game.")
-        break
+    ui.clean(True)
+    abort_game = False
+    available = list(range(len(deck)))
+    human_player.hands = {'hand': [], 'matches': []}
+    robot_player.hands = {'hand': [], 'matches': []}
+    messages = []
+    chat_height = 0
+    curr_height = 0
+    max_cards = 0
 
-    # -- Match checking --
-    # Check for matches in the robot's hand.
-    for c1 in robot_player.hands['hand']:
-        for c2 in robot_player.hands['hand']:
-            if c1 != c2 and rankcheck(c1) == rankcheck(c2) and colorcheck(c1) == colorcheck(c2):
-                send(robot_player, get_msg("handmatch"))
-                robot_player.hands['matches'].extend((c1, c2))
-                robot_player.hands['hand'] = [e for e in robot_player.hands['hand'] if e not in (c1, c2)]
-                update_scores()
+    finish = False
+    select = 1
+    while not finish:
+        menu_print(select)
+        keyp = None
+        while keyp not in ['up', 'down', 'select']:
+            keyp = modGetch.get_arrow()
+        if keyp == 'up':
+            if select > 1:
+                select = select - 1
+            else:
+                select = 4
+        if keyp == 'down':
+            if select < 4:
+                select = select + 1
+            else:
+                select = 1
+        if keyp == 'select':
+            if select == 1:
+                finish = not finish
+            if select == 2:
+                ui.width, ui.hieght = ui.auto_size()
+            if select == 3:
+                control_scheme = not control_scheme
+            if select == 4:
+                sys.exit()
 
-    printhand()
-    # Update scores
-    update_scores()
+    while len(available) > 44:
+        if turn:
+            human_player.hands['hand'].append(deck[dealcard()])
+        else:
+            robot_player.hands['hand'].append(deck[dealcard()])
+        turn = not turn
 
-    gofish = True
-    if turn:
-        loop = False
-        if control_scheme:
-            select = 0
-            finish = False
-            while not finish:
-                printhand(select)
-                print("left/right to move / enter to select / m to match / q to quit game")
-                keyp_2 = None
-                while keyp_2 not in ['right', 'left', 'select', 'escape', 'match']:
-                    keyp_2 = modGetch.get_arrow()
-                if keyp_2 == 'left':
-                    if select > 0:
-                        select = select - 1
-                    else:
-                        select = len(human_player.hands['hand'])-1
-                if keyp_2 == 'right':
-                    if select < len(human_player.hands['hand'])-1:
-                        select = select + 1
-                    else:
-                        select = 0
-                if keyp_2 == 'select':
-                    finish = not finish
-                if keyp_2 == 'escape':
+    human_match_count = 0
+    robot_match_count = 0
+    while not abort_game:
+        # -- Win conditions --
+        # If human player's hand is empty
+        if len(human_player.hands['hand']) < 1:
+            send(system, "Human hand exhausted! Ending game.")
+            break
+        # If robot player's hand is empty
+        if len(robot_player.hands['hand']) < 1:
+            send(system, "Robot hand exhausted! Ending game.")
+            break
+        # If deck is empty
+        if len(available) < 0:
+            send(system, "Deck exhausted! Ending game.")
+            break
+
+        # -- Match checking --
+        # Check for matches in the robot's hand.
+        for c1 in robot_player.hands['hand']:
+            for c2 in robot_player.hands['hand']:
+                if c1 != c2 and rankcheck(c1) == rankcheck(c2) and colorcheck(c1) == colorcheck(c2):
+                    send(robot_player, get_msg("handmatch"))
+                    robot_player.hands['matches'].extend((c1, c2))
+                    robot_player.hands['hand'] = [e for e in robot_player.hands['hand'] if e not in (c1, c2)]
+                    update_scores()
+
+        printhand()
+        # Update scores
+        update_scores()
+
+        gofish = True
+        if turn:
+            loop = False
+            if control_scheme:
+                select = 0
+                finish = False
+                while not finish:
                     printhand(select)
-                    conf = None
-                    while conf not in ['y', 'n']:
-                        conf = input("are you sure you want to exit? [y/n] ")
-                        conf = conf.lower()[:1]
-                    if conf == 'y':
-                        sys.exit()
-                    else:
-                        continue
+                    print("left/right to move / enter to select / m to match / q to quit game")
+                    keyp_2 = None
+                    while keyp_2 not in ['right', 'left', 'select', 'escape', 'match']:
+                        keyp_2 = modGetch.get_arrow()
+                    if keyp_2 == 'left':
+                        if select > 0:
+                            select = select - 1
+                        else:
+                            select = len(human_player.hands['hand'])-1
+                    if keyp_2 == 'right':
+                        if select < len(human_player.hands['hand'])-1:
+                            select = select + 1
+                        else:
+                            select = 0
+                    if keyp_2 == 'select':
+                        finish = not finish
+                    if keyp_2 == 'escape':
+                        printhand(select)
+                        conf = None
+                        while conf not in ['y', 'n']:
+                            conf = input("are you sure you want to exit? [y/n] ")
+                            conf = conf.lower()[:1]
+                        if conf == 'y':
+                            abort_game = True
+                            break
+                        else:
+                            continue
 
-                if keyp_2 == 'match':
-                    if control_scheme:
-                        match_selects = [0, -1]
-                        curr_select = 0
-                        while not finish:
-                            printhand(match_selects)
-                            print("left/right to move / enter to select / m to stop matching")
-                            keyp_2 = None
-                            while keyp_2 not in ['right', 'left', 'select', 'match']:
-                                keyp_2 = modGetch.get_arrow()
-                            if keyp_2 == 'left':
-                                if match_selects[curr_select] > 0:
-                                    match_selects[curr_select] = match_selects[curr_select] - 1
-                                else:
-                                    match_selects[curr_select] = len(human_player.hands['hand']) - 1
-                                if match_selects[0] == match_selects[1]:
+                    if keyp_2 == 'match':
+                        if control_scheme:
+                            match_selects = [0, -1]
+                            curr_select = 0
+                            while not finish:
+                                printhand(match_selects)
+                                print("left/right to move / enter to select / m to stop matching")
+                                keyp_2 = None
+                                while keyp_2 not in ['right', 'left', 'select', 'match']:
+                                    keyp_2 = modGetch.get_arrow()
+                                if keyp_2 == 'left':
                                     if match_selects[curr_select] > 0:
                                         match_selects[curr_select] = match_selects[curr_select] - 1
                                     else:
                                         match_selects[curr_select] = len(human_player.hands['hand']) - 1
-                            if keyp_2 == 'right':
-                                if match_selects[curr_select] < len(human_player.hands['hand']) - 1:
-                                    match_selects[curr_select] = match_selects[curr_select] + 1
-                                else:
-                                    match_selects[curr_select] = 0
-                                if match_selects[0] == match_selects[1]:
+                                    if match_selects[0] == match_selects[1]:
+                                        if match_selects[curr_select] > 0:
+                                            match_selects[curr_select] = match_selects[curr_select] - 1
+                                        else:
+                                            match_selects[curr_select] = len(human_player.hands['hand']) - 1
+                                if keyp_2 == 'right':
                                     if match_selects[curr_select] < len(human_player.hands['hand']) - 1:
                                         match_selects[curr_select] = match_selects[curr_select] + 1
                                     else:
                                         match_selects[curr_select] = 0
-                            if keyp_2 == 'select':
+                                    if match_selects[0] == match_selects[1]:
+                                        if match_selects[curr_select] < len(human_player.hands['hand']) - 1:
+                                            match_selects[curr_select] = match_selects[curr_select] + 1
+                                        else:
+                                            match_selects[curr_select] = 0
+                                if keyp_2 == 'select':
+                                    if curr_select == 0:
+                                        curr_select += 1
+                                        time.sleep(1)
+                                    else:
+                                        if human_player.hands['hand'][match_selects[0]] !=\
+                                                human_player.hands['hand'][match_selects[1]] and \
+                                                rankcheck(human_player.hands['hand'][match_selects[0]]) ==\
+                                                rankcheck(human_player.hands['hand'][match_selects[1]]) and \
+                                                colorcheck(human_player.hands['hand'][match_selects[0]]) ==\
+                                                colorcheck(human_player.hands['hand'][match_selects[1]]):
+                                            send(human_player, get_msg("handmatch"))
+                                            human_player.hands['matches'].extend(
+                                                (human_player.hands['hand'][match_selects[0]],
+                                                 human_player.hands['hand'][match_selects[1]]))
+                                            human_player.hands['hand'] = [e for e in human_player.hands['hand']
+                                                                          if e not in (
+                                                                          human_player.hands['hand'][match_selects[0]],
+                                                                          human_player.hands['hand'][match_selects[1]])]
+                                            update_scores()
+                                            match_selects = [0, -1]
+                                            curr_select = 0
+                                        else:
+                                            send(system, "That's not a match!")
+                                if keyp_2 == 'match':
+                                    break
+
+            elif not control_scheme:
+                select = "None, but not None"
+                while True:
+                    printhand()
+                    print("enter number to select / m to match / q to quit")
+                    select = input("Enter selection: ")
+                    if modHelper.is_int(select) and int(select) in list(range(0, len(human_player.hands['hand'])-1)):
+                        break
+                    if select == 'q':
+                        conf = None
+                        while conf not in ['y', 'n']:
+                            conf = input("are you sure you want to exit? [y/n] ")
+                            conf = conf.lower()[:1]
+                        if conf == 'y':
+                            abort_game = True
+                            break
+                        else:
+                            continue
+                    if select == 'm':
+                        match_selects = [-1, -1]
+                        curr_select = 0
+                        finish = False
+                        while not finish:
+                            match_selects[curr_select] = "Like, it's None but it's not NONE, you know?"
+                            printhand()
+                            print("enter number to select / m to stop matching")
+                            match_selects[curr_select] = input("Enter selection: ")
+                            if modHelper.is_int(match_selects[curr_select]) and \
+                                    int(match_selects[curr_select]) in \
+                                    list(range(0, len(human_player.hands['hand']) - 1)):
                                 if curr_select == 0:
                                     curr_select += 1
                                     time.sleep(1)
                                 else:
-                                    if human_player.hands['hand'][match_selects[0]] !=\
+                                    match_selects[0] = int(match_selects[0])
+                                    match_selects[1] = int(match_selects[1])
+                                    if human_player.hands['hand'][match_selects[0]] != \
                                             human_player.hands['hand'][match_selects[1]] and \
-                                            rankcheck(human_player.hands['hand'][match_selects[0]]) ==\
+                                            rankcheck(human_player.hands['hand'][match_selects[0]]) == \
                                             rankcheck(human_player.hands['hand'][match_selects[1]]) and \
-                                            colorcheck(human_player.hands['hand'][match_selects[0]]) ==\
+                                            colorcheck(human_player.hands['hand'][match_selects[0]]) == \
                                             colorcheck(human_player.hands['hand'][match_selects[1]]):
                                         send(human_player, get_msg("handmatch"))
                                         human_player.hands['matches'].extend(
@@ -361,106 +432,104 @@ while True:
                                              human_player.hands['hand'][match_selects[1]]))
                                         human_player.hands['hand'] = [e for e in human_player.hands['hand']
                                                                       if e not in (
-                                                                      human_player.hands['hand'][match_selects[0]],
-                                                                      human_player.hands['hand'][match_selects[1]])]
+                                                                          human_player.hands['hand'][match_selects[0]],
+                                                                          human_player.hands['hand'][match_selects[1]])]
                                         update_scores()
                                         match_selects = [0, -1]
                                         curr_select = 0
                                     else:
                                         send(system, "That's not a match!")
-                            if keyp_2 == 'match':
+                            if match_selects[curr_select] == 'm':
                                 break
-
-        elif not control_scheme:
-            select = "None, but not None"
-            while not modHelper.is_int(select) or \
-                    int(select) not in list(range(0, len(human_player.hands['hand'])-1)):
-                select = input("Enter selection:")
-            select = int(select)
-
-
-        send(human_player, get_msg("query") + "{} {}?"
-                                              .format(colorcheck(human_player.hands['hand'][select]),
-                                                      rankcheck(human_player.hands['hand'][select])))
-        for x in robot_player.hands['hand']:
-            if rankcheck(x) == rankcheck(human_player.hands['hand'][select]) and \
-                    colorcheck(x) == colorcheck(human_player.hands['hand'][select]):
-                gofish = False
-                human_player.hands['matches'].extend((x, human_player.hands['hand'][select]))
-                robot_player.hands['hand'] = [e for e in robot_player.hands['hand'] if e not in (x, '')]
-                human_player.hands['hand'] = [e for e in human_player.hands['hand']
-                                              if e not in (human_player.hands['hand'][select])]
-                time.sleep(1)
-                send(robot_player, get_msg("have"))
-                time.sleep(1)
-                update_scores()
+                # while not modHelper.is_int(select) or \
+                #        int(select) not in list(range(0, len(human_player.hands['hand'])-1)):
+                #    select = input("Enter selection:")
+                if not abort_game:
+                    select = int(select)
+            if abort_game:
                 break
-
-        if gofish:
-            time.sleep(1)
-            send(robot_player, get_msg("nothave"))
-            card_in = dealcard()
-            if card_in is not False:
-                input("Press enter to draw ]")
-                human_player.hands['hand'].append(deck[card_in])
-
-        turn = not turn
-    else:
-        select = random.randrange(0, len(robot_player.hands['hand']))
-        time.sleep(2)
-        send(robot_player, get_msg("query") + "{} {}?"
-             .format(colorcheck(robot_player.hands['hand'][select]), rankcheck(robot_player.hands['hand'][select])))
-        gofish = True
-        removeMe = None
-        for w, x in enumerate(human_player.hands['hand']):
-            if rankcheck(x) == rankcheck(robot_player.hands['hand'][select]) and \
-                    colorcheck(x) == colorcheck(robot_player.hands['hand'][select]):
-                gofish = False
-                removeMe = w
-                break
-
-        conf = None
-        while conf not in ['y', 'n']:
-            conf = input("Do you have a {} {}? [y/n] "
-                         .format(colorcheck(robot_player.hands['hand'][select]),
-                                 rankcheck(robot_player.hands['hand'][select])))
-            conf = conf.lower()[:1]
-        if gofish:
-            if conf == 'y':
-                send(system, "Erm.. afraid you actually don't.")
-                time.sleep(1)
-                send(human_player, get_msg("nothave"))
-            if conf == 'n':
-                send(human_player, get_msg("nothave"))
-        else:
-            if conf == 'y':
-                send(human_player, get_msg("have"))
-            if conf == 'n':
-                send(human_player, get_msg("nothave"))
-                send(robot_player, "Hmm..")
-                time.sleep(3)
-                if random.randrange(0, 10) > 6:
-                    send(robot_player, "You're bluffing!")
+            send(human_player, get_msg("query") + "{} {}?"
+                                                  .format(colorcheck(human_player.hands['hand'][select]),
+                                                          rankcheck(human_player.hands['hand'][select])))
+            for x in robot_player.hands['hand']:
+                if rankcheck(x) == rankcheck(human_player.hands['hand'][select]) and \
+                        colorcheck(x) == colorcheck(human_player.hands['hand'][select]):
+                    gofish = False
+                    human_player.hands['matches'].extend((x, human_player.hands['hand'][select]))
+                    robot_player.hands['hand'] = [e for e in robot_player.hands['hand'] if e not in (x, '')]
+                    human_player.hands['hand'] = [e for e in human_player.hands['hand']
+                                                  if e not in (human_player.hands['hand'][select])]
                     time.sleep(1)
-                    send(system, "You got caught!")
-                else:
-                    time.sleep(2)
-                    send(system, "You got away with the bluff!")
-                    gofish = True
-        time.sleep(1)
+                    send(robot_player, get_msg("have"))
+                    time.sleep(1)
+                    update_scores()
+                    break
 
-        if gofish:
-            card_in = dealcard()
-            if card_in is not False:
-                robot_player.hands['hand'].append(deck[card_in])
+            if gofish:
+                time.sleep(1)
+                send(robot_player, get_msg("nothave"))
+                card_in = dealcard()
+                if card_in is not False:
+                    input("Press enter to draw ]")
+                    human_player.hands['hand'].append(deck[card_in])
+
+            turn = not turn
         else:
-            robot_player.hands['matches'].extend((human_player.hands['hand'][removeMe],
-                                                  robot_player.hands['hand'][select]))
-            robot_player.hands['hand'] = [e for e in robot_player.hands['hand']
-                                          if e not in (robot_player.hands['hand'][select])]
-            human_player.hands['hand'] = [e for e in human_player.hands['hand']
-                                          if e not in (human_player.hands['hand'][removeMe], '')]
-        turn = not turn
+            select = random.randrange(0, len(robot_player.hands['hand']))
+            time.sleep(2)
+            send(robot_player, get_msg("query") + "{} {}?"
+                 .format(colorcheck(robot_player.hands['hand'][select]), rankcheck(robot_player.hands['hand'][select])))
+            gofish = True
+            removeMe = None
+            for w, x in enumerate(human_player.hands['hand']):
+                if rankcheck(x) == rankcheck(robot_player.hands['hand'][select]) and \
+                        colorcheck(x) == colorcheck(robot_player.hands['hand'][select]):
+                    gofish = False
+                    removeMe = w
+                    break
 
-end_score()
-input("Press enter to exit ]")
+            conf = None
+            while conf not in ['y', 'n']:
+                conf = input("Do you have a {} {}? [y/n] "
+                             .format(colorcheck(robot_player.hands['hand'][select]),
+                                     rankcheck(robot_player.hands['hand'][select])))
+                conf = conf.lower()[:1]
+            if gofish:
+                if conf == 'y':
+                    send(system, "Erm.. afraid you actually don't.")
+                    time.sleep(1)
+                    send(human_player, get_msg("nothave"))
+                if conf == 'n':
+                    send(human_player, get_msg("nothave"))
+            else:
+                if conf == 'y':
+                    send(human_player, get_msg("have"))
+                if conf == 'n':
+                    send(human_player, get_msg("nothave"))
+                    send(robot_player, "Hmm..")
+                    time.sleep(3)
+                    if random.randrange(0, 10) > 6:
+                        send(robot_player, "You're bluffing!")
+                        time.sleep(1)
+                        send(system, "You got caught!")
+                    else:
+                        time.sleep(2)
+                        send(system, "You got away with the bluff!")
+                        gofish = True
+            time.sleep(1)
+
+            if gofish:
+                card_in = dealcard()
+                if card_in is not False:
+                    robot_player.hands['hand'].append(deck[card_in])
+            else:
+                robot_player.hands['matches'].extend((human_player.hands['hand'][removeMe],
+                                                      robot_player.hands['hand'][select]))
+                robot_player.hands['hand'] = [e for e in robot_player.hands['hand']
+                                              if e not in (robot_player.hands['hand'][select])]
+                human_player.hands['hand'] = [e for e in human_player.hands['hand']
+                                              if e not in (human_player.hands['hand'][removeMe], '')]
+            turn = not turn
+    if not abort_game:
+        end_score()
+        input("Press enter to exit ]")
