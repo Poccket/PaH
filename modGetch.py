@@ -13,7 +13,7 @@ class _Arrow:
 
 def _arrowunix():
     a, b, c = None, None, None
-    keys = {'A': 'up', 'B': 'down', 'C': 'right', 'D': 'left', 'R': 'select', 'q': 'escape'}
+    keys = {'A': 'up', 'B': 'down', 'C': 'right', 'D': 'left', 'R': 'select', 'q': 'escape', 'm': 'match'}
     while c not in ['A', 'B', 'C', 'D']:
         while a not in ['\x1b', '\r', 'q']:
             a = getch()
@@ -23,6 +23,9 @@ def _arrowunix():
         if a == 'q':
             c = 'q'
             break
+        if a == 'm':
+            c = 'm'
+            break
         getch()
         c = getch()
     return keys[c]
@@ -30,9 +33,9 @@ def _arrowunix():
 
 def _arrownt():
     a, b = None, None
-    keys = {b'H': 'up', b'P': 'down', b'M': 'right', b'K': 'left', 'R': 'select', 'q': 'escape'}
+    keys = {b'H': 'up', b'P': 'down', b'M': 'right', b'K': 'left', 'R': 'select', 'q': 'escape', 'm': 'match'}
     while b not in [b'H', b'P', b'M', b'K']:
-        while a not in [b'\xe0', b'\r', b'q']:
+        while a not in [b'\xe0', b'\r', b'q', b'm']:
             a = getch()
         if a == b'\r':
             b = 'R'
@@ -40,28 +43,11 @@ def _arrownt():
         if a == b'q':
             b = 'q'
             break
+        if a == b'm':
+            b = 'm'
+            break
         b = getch()
     return keys[b]
-
-
-#class _ArrowNT:
-#    def __init__(self):
-#        pass
-#
-#    def __call__(self):
-#        a, b = None, None
-#        keys = {'H': 'up', 'P': 'down', 'M': 'right', 'K': 'left', 'R': 'select', 'q': 'escape'}
-#        while b not in [b'H', b'P', b'M', b'K']:
-#            while a not in [b'\xe0', b'\r', b'q']:
-#                a = getch()
-#            if a == b'\r':
-#                b = 'R'
-#                break
-#            if a == b'q':
-#                b = 'q'
-#                break
-#            b = getch()
-#        return keys[b]
 
 
 class _Getch:
