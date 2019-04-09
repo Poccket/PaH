@@ -3,14 +3,13 @@ import modFile
 import modList
 import modUI
 import modPlayers
+import modHelper
 import random
 import math
 import time
 import modGetch
 import sys
 
-# print("Make sure your terminal size is large enough, or you'll get an error!")
-# input("Get your window to a comfortable size, then press enter! ")
 
 ui = modUI.Screen()
 human_player = modPlayers.Player("Player", {'hand': [], 'matches': []})
@@ -25,15 +24,18 @@ max_cards = 0
 deck = modFile.read_list("decks/cardFrench.txt")
 available = list(range(len(deck)))
 turn = True
+control_scheme = True
 
 
 def menu_print(selection: int = 1):
     ui_mid = math.floor(ui.height / 2)
     ui.clean()
     menu_items = ["Go Fish!",
-                  "-- Start  --",
-                  "-- Resize --",
-                  "-- Quit   --"]
+                  "-- Start   --",
+                  "-- Resize: -- " + str(ui.width) + "x" + str(ui.height),
+                  "-- Input:  -- ",
+                  "-- Quit    --"]
+    menu_items[3] = menu_items[3] + ("Arrow" if control_scheme else "Type")
     for index, item in enumerate(menu_items):
         if index == selection:
             item = item.replace('--', '[[', 1)
@@ -58,9 +60,9 @@ while not finish:
         if select > 1:
             select = select - 1
         else:
-            select = 3
+            select = 4
     if keyp == 'down':
-        if select < 3:
+        if select < 4:
             select = select + 1
         else:
             select = 1
@@ -70,6 +72,8 @@ while not finish:
         if select == 2:
             ui.width, ui.hieght = ui.auto_size()
         if select == 3:
+            control_scheme = not control_scheme
+        if select == 4:
             sys.exit()
 
 suits = {
@@ -140,7 +144,7 @@ def send(usr, msg):
     ui.print()
 
 
-def printhand(selected: int = 0):
+def printhand(selected: int = None):
     global curr_height
     global chat_height
     global max_cards
@@ -171,7 +175,10 @@ def printhand(selected: int = 0):
         for z in hand_display:
             for y in range(startrow, max_cards+startrow):
                 if y < len(z):
-                    curr_line += ' '
+                    if z == hand_display[0] and not control_scheme:
+                        curr_line += f'{y:02}'
+                    else:
+                        curr_line += '  '
                     curr_line += z[y]
             ui.line(curr_height, "change", curr_line)
             curr_height -= 1
@@ -260,38 +267,45 @@ while True:
 
     gofish = True
     if turn:
-        select = 0
-        finish = False
-        while not finish:
-            printhand(select)
-            print("left/right to move, Enter to select, q to quit game")
-            keyp_2 = None
-            while keyp_2 not in ['right', 'left', 'select', 'escape']:
-                keyp_2 = modGetch.get_arrow()
-            if keyp_2 == 'left':
-                if select > 0:
-                    select = select - 1
-                else:
-                    select = len(human_player.hands['hand'])-1
-            if keyp_2 == 'right':
-                if select < len(human_player.hands['hand'])-1:
-                    select = select + 1
-                else:
-                    select = 0
-            if keyp_2 == 'select':
-                finish = not finish
-            if keyp_2 == 'escape':
+        if control_scheme:
+            select = 0
+            finish = False
+            while not finish:
                 printhand(select)
-                conf = None
-                while conf not in ['y', 'n']:
-                    conf = input("are you sure you want to exit? [y/n] ")
-                    conf = conf.lower()[:1]
-                if conf == 'y':
-                    sys.exit()
-                else:
-                    continue
+                print("left/right to move, Enter to select, q to quit game")
+                keyp_2 = None
+                while keyp_2 not in ['right', 'left', 'select', 'escape']:
+                    keyp_2 = modGetch.get_arrow()
+                if keyp_2 == 'left':
+                    if select > 0:
+                        select = select - 1
+                    else:
+                        select = len(human_player.hands['hand'])-1
+                if keyp_2 == 'right':
+                    if select < len(human_player.hands['hand'])-1:
+                        select = select + 1
+                    else:
+                        select = 0
+                if keyp_2 == 'select':
+                    finish = not finish
+                if keyp_2 == 'escape':
+                    printhand(select)
+                    conf = None
+                    while conf not in ['y', 'n']:
+                        conf = input("are you sure you want to exit? [y/n] ")
+                        conf = conf.lower()[:1]
+                    if conf == 'y':
+                        sys.exit()
+                    else:
+                        continue
+        elif not control_scheme:
+            select = "None, but not None"
+            while not modHelper.is_int(select) or \
+                    int(select) not in list(range(0, len(human_player.hands['hand'])-1)):
+                select = input("Enter selection:")
+            select = int(select)
         send(human_player, "Do you have a {} {}?"
-             .format(colorcheck(human_player.hands['hand'][select]), rankcheck(human_player.hands['hand'][select])))
+            .format(colorcheck(human_player.hands['hand'][select]), rankcheck(human_player.hands['hand'][select])))
 
         for x in robot_player.hands['hand']:
             if rankcheck(x) == rankcheck(human_player.hands['hand'][select]) and \
