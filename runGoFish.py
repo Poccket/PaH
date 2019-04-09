@@ -1,7 +1,6 @@
 import modDisp
 import modFile
 import modList
-import modHelper
 import modUI
 import modPlayers
 import random
@@ -10,8 +9,8 @@ import time
 import modGetch
 import sys
 
-print("Make sure your terminal size is large enough, or you'll get an error!")
-input("Get your window to a comfortable size, then press enter! ")
+# print("Make sure your terminal size is large enough, or you'll get an error!")
+# input("Get your window to a comfortable size, then press enter! ")
 
 ui = modUI.Screen()
 human_player = modPlayers.Player("Player", {'hand': [], 'matches': []})
@@ -26,6 +25,52 @@ max_cards = 0
 deck = modFile.read_list("decks/cardFrench.txt")
 available = list(range(len(deck)))
 turn = True
+
+
+def menu_print(selection: int = 1):
+    ui_mid = math.floor(ui.height / 2)
+    ui.clean()
+    menu_items = ["Go Fish!",
+                  "-- Start  --",
+                  "-- Resize --",
+                  "-- Quit   --"]
+    for index, item in enumerate(menu_items):
+        if index == selection:
+            item = item.replace('--', '[[', 1)
+            item = item.replace('--', ']]')
+        else:
+            item.replace('[[', '--')
+            item.replace(']]', '--')
+        for num in range(0, (math.floor(ui.width / 2) - 24)):
+            item = " " + item
+        ui.line(ui_mid, "insert", item)
+    ui.print()
+
+
+finish = False
+select = 1
+while not finish:
+    menu_print(select)
+    keyp = None
+    while keyp not in ['up', 'down', 'select']:
+        keyp = modGetch.get_arrow()
+    if keyp == 'up':
+        if select > 1:
+            select = select - 1
+        else:
+            select = 3
+    if keyp == 'down':
+        if select < 3:
+            select = select + 1
+        else:
+            select = 1
+    if keyp == 'select':
+        if select == 1:
+            finish = not finish
+        if select == 2:
+            ui.width, ui.hieght = ui.auto_size()
+        if select == 3:
+            sys.exit()
 
 suits = {
     "colors": {
@@ -110,8 +155,8 @@ def printhand(selected: int = 0):
     chat_height = math.ceil(rows_needed * 12) + 5
 
     hand_blocks = []
-    for x, y in enumerate(human_player.hands['hand']):
-        if x == selected:
+    for a, y in enumerate(human_player.hands['hand']):
+        if a == selected:
             hand_blocks.append(modDisp.as_block(y, aslist=True, blockset="double"))
         else:
             hand_blocks.append(modDisp.as_block(y, aslist=True, blockset="light"))
@@ -126,9 +171,6 @@ def printhand(selected: int = 0):
         for z in hand_display:
             for y in range(startrow, max_cards+startrow):
                 if y < len(z):
-#                    if z == hand_display[0]:
-#                        curr_line += ' ' + f'{y:02}'
-#                    else:
                     curr_line += ' '
                     curr_line += z[y]
             ui.line(curr_height, "change", curr_line)
@@ -223,33 +265,23 @@ while True:
         while not finish:
             printhand(select)
             print("left/right to move, Enter to select, q to quit game")
-            inp = None
-            while inp not in ['right', 'left', 'select', 'escape']:
-                inp = modGetch.get_arrow()
-            if inp == 'left':
+            keyp_2 = None
+            while keyp_2 not in ['right', 'left', 'select', 'escape']:
+                keyp_2 = modGetch.get_arrow()
+            if keyp_2 == 'left':
                 if select > 0:
                     select = select - 1
                 else:
                     select = len(human_player.hands['hand'])-1
-            if inp == 'right':
+            if keyp_2 == 'right':
                 if select < len(human_player.hands['hand'])-1:
                     select = select + 1
                 else:
                     select = 0
-            if inp == 'select':
+            if keyp_2 == 'select':
                 finish = not finish
-            if inp == 'escape':
+            if keyp_2 == 'escape':
                 sys.exit()
-
-
-#        select = "Not a number!"
-#        while not modHelper.is_int(select) or int(select) > len(human_player.hands['hand'])-1:
-#            select = input("Pick a card to play> ")
-#            if modHelper.is_int(select) and int(select) > len(human_player.hands['hand'])-1:
-#                print("That number is too big!")
-#            if not modHelper.is_int(select):
-#                print("Need to input a number!")
-#        select = int(select)
         send(human_player, "Do you have a {} {}?"
              .format(colorcheck(human_player.hands['hand'][select]), rankcheck(human_player.hands['hand'][select])))
 
