@@ -34,7 +34,8 @@ def menu_print(selection: int = 1):
                   "-- Start   --",
                   "-- Resize: -- " + str(ui.width) + "x" + str(ui.height),
                   "-- Input:  -- ",
-                  "-- Quit    --"]
+                  "-- Quit    --","",
+                  "up/down and enter to select"]
     menu_items[3] = menu_items[3] + ("Arrow" if control_scheme else "Type")
     for index, item in enumerate(menu_items):
         if index == selection:
