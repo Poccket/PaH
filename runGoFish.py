@@ -19,8 +19,29 @@ system = modPlayers.Player("System", groups=['system'])
 deck = modFile.read_list("decks/cardFrench.txt")
 turn = True
 control_scheme = True
-wins_in_session = 0
-loss_in_session = 0
+try:
+    f = open('gofish.score', 'r')
+    f_cont = f.read()
+    f.close()
+    scores = [int(s) for s in f_cont.split() if s.isdigit()]
+    if len(scores) >= 2 and modHelper.is_int(scores[0]) and modHelper.is_int(scores[1]):
+        wins_in_session = scores[0]
+        loss_in_session = scores[1]
+    else:
+        wins_in_session = 0
+        loss_in_session = 0
+except FileNotFoundError:
+    f = open('gofish.score', 'w')
+    f.write('w 0 l 0')
+    f.close()
+    wins_in_session = 0
+    loss_in_session = 0
+
+
+def score_file():
+    f = open('gofish.score', 'w')
+    f.write('w ' + str(wins_in_session) + ' l ' + str(loss_in_session))
+    f.close()
 
 
 def menu_print(selection: int = 1):
@@ -30,7 +51,8 @@ def menu_print(selection: int = 1):
                   "-- Start   --",
                   "-- Resize: -- " + str(ui.width) + "x" + str(ui.height),
                   "-- Input:  -- ",
-                  "-- Quit    --", "",
+                  "-- Quit    --",
+                  "-- Wins:   -- " + str(wins_in_session) + " / " + str(loss_in_session), "",
                   "up/down and enter to select"]
     menu_items[3] = menu_items[3] + ("Arrow" if control_scheme else "Type")
     for index, item in enumerate(menu_items):
@@ -216,6 +238,7 @@ def end_score():
 
 
 while True:
+    score_file()
     ui.clean(True)
     abort_game = False
     available = list(range(len(deck)))
