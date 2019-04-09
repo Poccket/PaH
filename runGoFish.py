@@ -7,6 +7,8 @@ import modPlayers
 import random
 import math
 import time
+import modGetch
+import sys
 
 print("Make sure your terminal size is large enough, or you'll get an error!")
 input("Get your window to a comfortable size, then press enter! ")
@@ -93,7 +95,7 @@ def send(usr, msg):
     ui.print()
 
 
-def printhand():
+def printhand(selected: int = 0):
     global curr_height
     global chat_height
     global max_cards
@@ -108,8 +110,11 @@ def printhand():
     chat_height = math.ceil(rows_needed * 12) + 5
 
     hand_blocks = []
-    for i in human_player.hands['hand']:
-        hand_blocks.append(modDisp.as_block(i, aslist=True, blockset="arc"))
+    for x, y in enumerate(human_player.hands['hand']):
+        if x == selected:
+            hand_blocks.append(modDisp.as_block(y, aslist=True, blockset="double"))
+        else:
+            hand_blocks.append(modDisp.as_block(y, aslist=True, blockset="light"))
 
     hand_display = modList.merge_alternate(hand_blocks, 'm')
 
@@ -121,10 +126,10 @@ def printhand():
         for z in hand_display:
             for y in range(startrow, max_cards+startrow):
                 if y < len(z):
-                    if z == hand_display[0]:
-                        curr_line += ' ' + f'{y:02}'
-                    else:
-                        curr_line += '   '
+#                    if z == hand_display[0]:
+#                        curr_line += ' ' + f'{y:02}'
+#                    else:
+                    curr_line += ' '
                     curr_line += z[y]
             ui.line(curr_height, "change", curr_line)
             curr_height -= 1
@@ -213,14 +218,38 @@ while True:
 
     gofish = True
     if turn:
-        select = "Not a number!"
-        while not modHelper.is_int(select) or int(select) > len(human_player.hands['hand'])-1:
-            select = input("Pick a card to play> ")
-            if modHelper.is_int(select) and int(select) > len(human_player.hands['hand'])-1:
-                print("That number is too big!")
-            if not modHelper.is_int(select):
-                print("Need to input a number!")
-        select = int(select)
+        select = 0
+        finish = False
+        while not finish:
+            printhand(select)
+            print("left/right to move, Enter to select, q to quit game")
+            inp = None
+            while inp not in ['right', 'left', 'select', 'escape']:
+                inp = modGetch.get_arrow()
+            if inp == 'left':
+                if select > 0:
+                    select = select - 1
+                else:
+                    select = len(human_player.hands['hand'])-1
+            if inp == 'right':
+                if select < len(human_player.hands['hand'])-1:
+                    select = select + 1
+                else:
+                    select = 0
+            if inp == 'select':
+                finish = not finish
+            if inp == 'escape':
+                sys.exit()
+
+
+#        select = "Not a number!"
+#        while not modHelper.is_int(select) or int(select) > len(human_player.hands['hand'])-1:
+#            select = input("Pick a card to play> ")
+#            if modHelper.is_int(select) and int(select) > len(human_player.hands['hand'])-1:
+#                print("That number is too big!")
+#            if not modHelper.is_int(select):
+#                print("Need to input a number!")
+#        select = int(select)
         send(human_player, "Do you have a {} {}?"
              .format(colorcheck(human_player.hands['hand'][select]), rankcheck(human_player.hands['hand'][select])))
 
