@@ -79,10 +79,10 @@ while not finish:
 
 suits = {
     "colors": {
-        "Heart": "Red",
-        "Diamond": "Red",
-        "Club": "Black",
-        "Spade": "Black",
+        "Heart": "red",
+        "Diamond": "red",
+        "Club": "black",
+        "Spade": "black",
         "JOKER": "wild"
     },
     "cards": {
@@ -103,6 +103,21 @@ suits = {
 
     }
 }
+
+rand_messages = {
+        "query": ["Got a ", "Have a ", "What about a ", "Do you have a "],
+        "handmatch": ["Got a match!", "Match in my hand", "Match! Nice.", "Match here!"],
+        "have": [["Yeah, ", "Yup, ", "Mhm, ", "Nice, ", "Got me, "]["here you go", "take it", "here it is", "it's here", "I got it"]],
+        "nothave": [["Sorry, ", "Nope, ", "Afraid not, ", "No dice, ", "No luck"]["go fish", "gotta draw", "don't got it", "not in my hand"]]
+
+def get_msg(msg_type):
+    if msg_type not in ["query", "handmatch", "have", "nothave"]:
+        return False
+    if msg_type == "query" or msg_type == "handmatch":
+        return rand_messages[msg_type][random.randrange(0, len(rand_messages[msg_type]))]
+    if msg_type == "have" or msg_type == "nothave":
+        return (rand_messages[msg_type][0][random.randrange(0, len(rand_messages[msg_type]))] +
+                rand_messages[msg_type][1][random.randrange(0, len(rand_messages[msg_type][1])))
 
 
 def colorcheck(inp):
@@ -222,7 +237,7 @@ def end_score():
         send(system, "You won! Congratulations!")
     elif robot_match_count > human_match_count:
         send(system, "You lost! Try again!")
-    input("Press enter to view matches> ")
+    input("Press enter to view matches ]")
     human_player.hands['hand'] = human_player.hands['matches']
     ui.height = (math.ceil(len(human_player.hands['matches']) / max_cards) + 1) * 12
     ui.clean()
@@ -246,13 +261,13 @@ while True:
 
     # -- Match checking --
     # Check for matches in the player's hand.
-    for c1 in human_player.hands['hand']:
-        for c2 in human_player.hands['hand']:
-            if c1 != c2 and rankcheck(c1) == rankcheck(c2) and colorcheck(c1) == colorcheck(c2):
-                send(human_player, "Match in my hand.")
-                human_player.hands['matches'].extend((c1, c2))
-                human_player.hands['hand'] = [e for e in human_player.hands['hand'] if e not in (c1, c2)]
-                update_scores()
+#    for c1 in human_player.hands['hand']:
+#        for c2 in human_player.hands['hand']:
+#            if c1 != c2 and rankcheck(c1) == rankcheck(c2) and colorcheck(c1) == colorcheck(c2):
+#                send(human_player, "Match in my hand.")
+#                human_player.hands['matches'].extend((c1, c2))
+#                human_player.hands['hand'] = [e for e in human_player.hands['hand'] if e not in (c1, c2)]
+#                update_scores()
     # Check for matches in the robot's hand.
     for c1 in robot_player.hands['hand']:
         for c2 in robot_player.hands['hand']:
@@ -327,6 +342,7 @@ while True:
             send(robot_player, "Sorry, I don't. Go fish.")
             card_in = dealcard()
             if card_in is not False:
+                input("Press enter to draw ]")
                 human_player.hands['hand'].append(deck[card_in])
 
         turn = not turn
@@ -344,14 +360,15 @@ while True:
                 robot_player.hands['hand'] = [e for e in robot_player.hands['hand']
                                               if e not in (robot_player.hands['hand'][select])]
                 human_player.hands['hand'] = [e for e in human_player.hands['hand'] if e not in (x, '')]
-                time.sleep(1)
+                input("Press enter to give {} {} ]"
+                        .format(colorcheck(x), rankceck(x)))
                 send(human_player, "Yup, here you go.")
                 time.sleep(1)
                 update_scores()
                 time.sleep(2)
                 break
         if gofish:
-            time.sleep(1)
+            input("Press enter to say no ]"
             send(human_player, "Don't have it, Go fish.")
             card_in = dealcard()
             if card_in is not False:
@@ -360,4 +377,4 @@ while True:
         turn = not turn
 
 end_score()
-input("Press enter to exit>")
+input("Press enter to exit ]")
