@@ -48,41 +48,20 @@ def as_block(text: str = "", width: int = 10, height: int = 10, blockset: str = 
     # and we start the output, with just a south-east corner.
 
     for line in range(0, height):
-        output += ([""] if aslist else ("" if line == 0 else "\n"))
+        currline = ("" if aslist or line == 0 else "\n")
         if line in [0, height-1]:
-            if aslist:
-                output[line] += block['n-e'][blockset] if line == height-1 else block['s-e'][blockset]
-            else:
-                output += block['n-e'][blockset] if line == height-1 else block['s-e'][blockset]
+            currline += block['n-e'][blockset] if line == height-1 else block['s-e'][blockset]
             for x in range(0, width-2):
-                if aslist:
-                    output[line] += block['horiz'][blockset]
-                else:
-                    output += block['horiz'][blockset]
-            if aslist:
-                output[line] += block['n-w'][blockset] if line == height-1 else block['s-w'][blockset]
-            else:
-                output += block['n-w'][blockset] if line == height-1 else block['s-w'][blockset]
+                currline += block['horiz'][blockset]
+            currline += block['n-w'][blockset] if line == height-1 else block['s-w'][blockset]
         else:
-            if aslist:
-                output[line] += block['vert'][blockset]
-            else:
-                output += block['vert'][blockset]
+            currline += block['vert'][blockset]
             for char in range(0, width-2):
                 if text == "":
-                    if aslist:
-                        output[line] += " "
-                    else:
-                        output += " "
+                    currline += " "
                 else:
-                    if aslist:
-                        output[line] += text[:1]
-                        text = text[1:]
-                    else:
-                        output += text[:1]
-                        text = text[1:]
-            if aslist:
-                output[line] += block['vert'][blockset]
-            else:
-                output += block['vert'][blockset]
+                    currline += text[:1]
+                    text = text[1:]
+            currline += block['vert'][blockset]
+        output += ([currline] if aslist else currline)
     return output
