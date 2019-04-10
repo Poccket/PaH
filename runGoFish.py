@@ -270,7 +270,7 @@ while True:
             if select == 1:
                 finish = not finish
             if select == 2:
-                ui.width, ui.hieght = ui.auto_size()
+                ui.width, ui.height = ui.auto_size()
             if select == 3:
                 control_scheme = not control_scheme
             if select == 4:
