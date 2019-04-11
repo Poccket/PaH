@@ -19,6 +19,7 @@ system = modPlayers.Player("System", groups=['system'])
 deck = modFile.read_list("decks/cardFrench.txt")
 turn = True
 control_scheme = True
+prev_query = None
 try:
     f = open('gofish.score', 'r')
     f_cont = f.read()
@@ -498,7 +499,10 @@ while True:
 
             turn = not turn
         else:
-            select = random.randrange(0, len(robot_player.hands['hand']))
+            select == prev_query
+            while select == prev_query:
+                select = random.randrange(0, len(robot_player.hands['hand']))
+            prev_query = select
             time.sleep(2)
             send(robot_player, get_msg("query") + "{} {}?"
                  .format(colorcheck(robot_player.hands['hand'][select]), rankcheck(robot_player.hands['hand'][select])))
@@ -531,10 +535,14 @@ while True:
                     send(human_player, get_msg("nothave"))
                     send(robot_player, "Hmm..")
                     time.sleep(3)
-                    if random.randrange(0, 10) > 6:
+                    if random.randrange(0, 9) > 3:
                         send(robot_player, "You're bluffing!")
                         time.sleep(1)
-                        send(system, "You got caught!")
+                        if len(human_player.hands['matches']) >= 2:
+                            human_player.hands['matches'] = human_player.hands['matches'][:len(human_player.hands['matches'])-2]
+                            send(system, "You got caught! You lost 1 match!")
+                        else:
+                            send(system, "You got caught, but you have no matches!")
                     else:
                         time.sleep(2)
                         send(system, "You got away with the bluff!")
