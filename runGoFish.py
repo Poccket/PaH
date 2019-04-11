@@ -549,14 +549,20 @@ while True:
                     send(human_player, get_msg("nothave"))
                     send(robot_player, "Hmm..")
                     time.sleep(3)
-                    bluff_chance = (9*difficulty) if difficulty != 0 else 3
-                    if random.randrange(0, bluff_chance) > 2:
+                    bluff_chance = (9*difficulty) if difficulty > 0 else 3
+                    if random.randrange(0, bluff_chance) > 2 if difficulty > 0 else 1:
                         send(robot_player, "You're bluffing!")
                         time.sleep(1)
-                        if len(human_player.hands['matches']) >= 2:
+                        if difficulty > 0 and len(human_player.hands['matches']) >= 2*difficulty:
                             human_player.hands['matches'] = \
                                 human_player.hands['matches'][:len(human_player.hands['matches'])-(2*difficulty)]
-                            send(system, "You got caught! You lost 1 match!")
+                            send(system, "You got caught! You lost " + "a match!" if difficulty == 1 else "2 matches!")
+                        elif difficulty == 2 and len(human_player.hands['matches']) >= 2:
+                            human_player.hands['matches'] = \
+                                human_player.hands['matches'][:len(human_player.hands['matches']) - 2]
+                            send(system, "You got caught! You lost a match!")
+                        elif difficulty == 0:
+                            send(system, "You got caught! :(")
                         else:
                             send(system, "You got caught, but you have no matches!")
                     else:
