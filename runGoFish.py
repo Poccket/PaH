@@ -42,9 +42,9 @@ except FileNotFoundError:
 
 
 def score_file():
-    f = open('gofish.score', 'w')
-    f.write('w ' + str(wins_in_session) + ' l ' + str(loss_in_session))
-    f.close()
+    _f = open('gofish.score', 'w')
+    _f.write('w ' + str(wins_in_session) + ' l ' + str(loss_in_session))
+    _f.close()
 
 
 def menu_print(selection: int = 1):
