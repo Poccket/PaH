@@ -15,7 +15,7 @@ def _arrowunix():
     a, b, c = None, None, None
     keys = {'A': 'up', 'B': 'down', 'C': 'right', 'D': 'left', 'R': 'select', 'q': 'escape', 'm': 'match'}
     while c not in ['A', 'B', 'C', 'D']:
-        while a not in ['\x1b', '\r', 'q']:
+        while a not in ['\x1b', '\r', 'q', 'm']:
             a = getch()
         if a == '\r':
             c = 'R'
