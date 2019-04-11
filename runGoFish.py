@@ -20,6 +20,8 @@ deck = modFile.read_list("decks/cardFrench.txt")
 turn = True
 control_scheme = True
 prev_query = None
+difficulty = 1
+diff = ["Easy", "Normal", "Hard"]
 try:
     f = open('gofish.score', 'r')
     f_cont = f.read()
@@ -49,13 +51,20 @@ def menu_print(selection: int = 1):
     ui_mid = math.floor(ui.height / 2)
     ui.clean()
     menu_items = ["Go Fish!",
-                  "-- Start   --",
-                  "-- Resize: -- " + str(ui.width) + "x" + str(ui.height),
-                  "-- Input:  -- ",
-                  "-- Quit    --",
-                  "-- Wins:   -- " + str(wins_in_session) + " / " + str(loss_in_session), "",
-                  "up/down and enter to select"]
-    menu_items[3] = menu_items[3] + ("Arrow" if control_scheme else "Type")
+                  "-- Start       --",
+                  "-- Resize:     -- " + str(ui.width) + "x" + str(ui.height),
+                  "-- Input:      -- " + ("Arrow" if control_scheme else "Type"),
+                  "-- Difficulty: -- " + str(diff[difficulty]),
+                  "-- Quit        --",
+                  "-- Wins:       -- " + str(wins_in_session) + " / " + str(loss_in_session), "",
+                  "up/down and enter to select", ""]
+    menu_hints = ["",
+                  "Starts a game.",
+                  "Resets the screen size, use this if you resized after starting.",
+                  "Changes the input type to typing your card or using arrow keys.",
+                  "Difficulty affects bluff chance and punishment.",
+                  "Exits the game."]
+    menu_items += [menu_hints[selection]]
     for index, item in enumerate(menu_items):
         if index == selection:
             item = item.replace('--', '[[', 1)
@@ -261,9 +270,9 @@ while True:
             if select > 1:
                 select = select - 1
             else:
-                select = 4
+                select = 5
         if keyp == 'down':
-            if select < 4:
+            if select < 5:
                 select = select + 1
             else:
                 select = 1
@@ -275,6 +284,11 @@ while True:
             if select == 3:
                 control_scheme = not control_scheme
             if select == 4:
+                if difficulty == 2:
+                    difficulty = 0
+                else:
+                    difficulty += 1
+            if select == 5:
                 sys.exit()
 
     while len(available) > 44:
@@ -499,7 +513,7 @@ while True:
 
             turn = not turn
         else:
-            select == prev_query
+            select = prev_query
             while select == prev_query:
                 select = random.randrange(0, len(robot_player.hands['hand']))
             prev_query = select
@@ -535,11 +549,13 @@ while True:
                     send(human_player, get_msg("nothave"))
                     send(robot_player, "Hmm..")
                     time.sleep(3)
-                    if random.randrange(0, 9) > 3:
+                    bluff_chance = (9*difficulty) if difficulty != 0 else 3
+                    if random.randrange(0, bluff_chance) > 2:
                         send(robot_player, "You're bluffing!")
                         time.sleep(1)
                         if len(human_player.hands['matches']) >= 2:
-                            human_player.hands['matches'] = human_player.hands['matches'][:len(human_player.hands['matches'])-2]
+                            human_player.hands['matches'] = \
+                                human_player.hands['matches'][:len(human_player.hands['matches'])-(2*difficulty)]
                             send(system, "You got caught! You lost 1 match!")
                         else:
                             send(system, "You got caught, but you have no matches!")
