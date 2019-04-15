@@ -3,6 +3,14 @@ from typing import Union
 import shutil
 import os
 
+colors = {
+    "RED"   : "\033[1;31m",
+    "GREEN" : "\033[1;32m",
+    "BLUE"  : "\033[1;34m",
+    "WHITE" : "\033[1;97m",
+    "RESET" : "\033[0;0m",
+}
+
 
 class Screen:
     def __init__(self, width: int = 0, height: int = 0, ui: list = None, clamp: bool = True, clear: bool = True,
