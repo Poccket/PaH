@@ -12,8 +12,8 @@ import sys
 
 
 ui = modUI.Screen()
-human_player = modPlayers.Player("Player", {'hand': [], 'matches': []})
-robot_player = modPlayers.Player("Robot", {'hand': [], 'matches': []})
+human_player = modPlayers.Player("Player", "GREEN", {'hand': [], 'matches': []})
+robot_player = modPlayers.Player("Robot", "BLUE", {'hand': [], 'matches': []})
 system = modPlayers.Player("System", groups=['system'])
 
 deck = modFile.read_list("decks/cardFrench.txt")
@@ -21,52 +21,80 @@ turn = True
 control_scheme = True
 prev_query = None
 difficulty = 1
+resetting = False
 diff = ["Easy", "Normal", "Hard"]
+overall_scores = {}
+def reset_scores():
+    global overall_scores
+    overall_scores = {
+        "wins": 0,
+        "losses": 0,
+        "bluffs": 0,
+        "bluffswon": 0,
+        "matches": 0,
+    }
+reset_scores()
+
 try:
     f = open('gofish.score', 'r')
     f_cont = f.read()
     f.close()
     scores = [int(s) for s in f_cont.split() if s.isdigit()]
-    if len(scores) >= 2 and modHelper.is_int(scores[0]) and modHelper.is_int(scores[1]):
-        wins_in_session = scores[0]
-        loss_in_session = scores[1]
-    else:
-        wins_in_session = 0
-        loss_in_session = 0
+    if len(scores) >= 5:
+        overall_scores["wins"] = scores[0]
+        overall_scores["losses"] = scores[1]
+        overall_scores["bluffs"] = scores[2]
+        overall_scores["bluffswon"] = scores[3]
+        overall_scores["matches"] = scores[4]
 except FileNotFoundError:
     f = open('gofish.score', 'w')
-    f.write('w 0 l 0')
+    f.write('w 0 l 0 bm 0 bw 0 m 0')
     f.close()
-    wins_in_session = 0
-    loss_in_session = 0
 
 
 def score_file():
     _f = open('gofish.score', 'w')
-    _f.write('w ' + str(wins_in_session) + ' l ' + str(loss_in_session))
+    _f.write('w '   + str(overall_scores["wins"]) +
+             ' l '  + str(overall_scores["losses"]) +
+             ' bm ' + str(overall_scores["bluffs"]) +
+             ' bw ' + str(overall_scores["bluffswon"]) +
+             ' m '  + str(overall_scores["matches"]))
     _f.close()
 
 
 def menu_print(selection: int = 1):
-    ui_mid = math.floor(ui.height / 2)
+    ui_mid = math.floor(ui.height / 2.5)
     ui.clean()
-    menu_items = ["Go Fish!",
+    if difficulty == 0:
+        diff_menu = "[Easy] Normal  Hard"
+    elif difficulty == 1:
+        diff_menu = " Easy [Normal] Hard"
+    else:
+        diff_menu = " Easy  Normal [Hard]"
+    menu_items = [modUI.colors["RED"] + "Go Fish!" + modUI.colors["RESET"],
                   "-- Start       --",
                   "-- Resize:     -- " + str(ui.width) + "x" + str(ui.height),
-                  "-- Input:      -- " + ("Arrow" if control_scheme else "Type"),
-                  "-- Difficulty: -- " + str(diff[difficulty]),
-                  "-- Quit        --",
-                  "-- Wins:       -- " + str(wins_in_session) + " / " + str(loss_in_session), "",
-                  "up/down and enter to select", ""]
+                  "-- Input:      -- " + ("[Arrow] Type" if control_scheme else " Arrow [Type]"),
+                  "-- Difficulty: -- " + diff_menu,
+                  "-- First turn: -- " + ("[Human] Robot" if turn else " Human [Robot]"),
+                  "-- Quit        --", "",
+                  modUI.colors["BLUE"] + "-- Games:      -- " + modUI.colors["GREEN"] + str(overall_scores["wins"]) + " Won" + modUI.colors["RESET"] + " / " + modUI.colors["RED"] + str(overall_scores["losses"]) + " Lost" + modUI.colors["RESET"],
+                  modUI.colors["BLUE"] + "-- Bluffs:     -- " + modUI.colors["GREEN"] + str(overall_scores["bluffswon"]) + " Won" + modUI.colors["RESET"] + " / " + modUI.colors["BLUE"] + str(overall_scores["bluffs"]) + " Made" + modUI.colors["RESET"],
+                  modUI.colors["BLUE"] + "-- Matches:    -- " + modUI.colors["GREEN"] + str(overall_scores["matches"]) + " Matches made" + modUI.colors["RESET"],
+                  "-- Reset score -- " + ("WARNING: RESETTING SCORES" if resetting else ""), ""]
     menu_hints = ["",
                   "Starts a game.",
                   "Resets the screen size, use this if you resized after starting.",
                   "Changes the input type to typing your card or using arrow keys.",
                   "Difficulty affects bluff chance and punishment.",
-                  "Exits the game."]
+                  "Changes if you or the A.I. has the first turn.",
+                  "Exits the game.",
+                  "", "", "Resets all scores", "",
+                  "Resets all scores. Must be pressed twice."]
     menu_items += [menu_hints[selection]]
     for index, item in enumerate(menu_items):
         if index == selection:
+            item = modUI.colors["GREEN"] + item[:17] + modUI.colors["BLUE"] + item[17:] + modUI.colors["RESET"]
             item = item.replace('--', '[[', 1)
             item = item.replace('--', ']]')
         else:
@@ -153,7 +181,7 @@ def dealcard():
 def send(usr, msg):
     global chat_height
     if msg is not None:
-        messages.append("<" + usr.name + "> " + msg)
+        messages.append(modUI.colors[usr.color] + "<" + usr.name + "> " + modUI.colors["RESET"] + msg)
         if len(messages) > 20:
             del messages[0]
         for a in range(chat_height, ui.height):
@@ -169,6 +197,8 @@ def printhand(selected: [list, int] = None):
     global curr_height
     global chat_height
     global max_cards
+    if len(human_player.hands['hand']) <= 0:
+        return False
     # -- UI Variables --
     # The amount of cards that can fit on one row
     max_cards = math.floor(ui.width / 14)
@@ -202,7 +232,9 @@ def printhand(selected: [list, int] = None):
                         curr_line += f'{y:02}'
                     else:
                         curr_line += '  '
-                    curr_line += z[y]
+                    if colorcheck(human_player.hands['hand'][y]) == "red":
+                        curr_line += modUI.colors["RED"]
+                    curr_line += z[y] + modUI.colors["RESET"]
             ui.line(curr_height, "change", curr_line)
             curr_height -= 1
             curr_line = ""
@@ -227,16 +259,15 @@ def update_scores():
 
 
 def end_score():
-    global wins_in_session
-    global loss_in_session
+    global overall_scores
     if human_match_count == robot_match_count:
         send(system, "There was a tie!")
     elif human_match_count > robot_match_count:
         send(system, "You won! Congratulations!")
-        wins_in_session += 1
+        overall_scores["wins"] += 1
     elif robot_match_count > human_match_count:
         send(system, "You lost! Try again!")
-        loss_in_session += 1
+        overall_scores["losses"] += 1
     input("Press enter to view matches ]")
     human_player.hands['hand'] = human_player.hands['matches']
     if len(human_player.hands['matches']) != 0:
@@ -249,6 +280,7 @@ def end_score():
 
 while True:
     score_file()
+    turn = True
     ui.clean(True)
     abort_game = False
     available = list(range(len(deck)))
@@ -262,20 +294,25 @@ while True:
     finish = False
     select = 1
     while not finish:
+        if select not in [1,2,3,4,5,6,11]:
+            if select < 1:
+                select = 11
+            if select > 11:
+                select = 1
+            if select == 7:
+                select = 11
+            if select == 10:
+                select = 6
         menu_print(select)
         keyp = None
-        while keyp not in ['up', 'down', 'select']:
+        while keyp not in ['up', 'down', 'select', 'left', 'right']:
             keyp = modGetch.get_arrow()
         if keyp == 'up':
-            if select > 1:
-                select = select - 1
-            else:
-                select = 5
+            resetting = False
+            select -= 1
         if keyp == 'down':
-            if select < 5:
-                select = select + 1
-            else:
-                select = 1
+            resetting = False
+            select += 1
         if keyp == 'select':
             if select == 1:
                 finish = not finish
@@ -289,7 +326,26 @@ while True:
                 else:
                     difficulty += 1
             if select == 5:
+                turn = not turn
+            if select == 6:
                 sys.exit()
+            if select == 11:
+                if not resetting:
+                    resetting = True
+                else:
+                    reset_scores()
+                    score_file()
+                    resetting = False
+        if keyp == 'left' or keyp == 'right':
+            if select == 3:
+                control_scheme = not control_scheme
+            if select == 5:
+                turn = not turn
+            if select == 4:
+                change = 1 if keyp == 'right' else -1
+                difficulty += change
+                if difficulty == 3: difficulty = 0
+                if difficulty == -1: difficulty = 2
 
     while len(available) > 44:
         if turn:
@@ -367,7 +423,7 @@ while True:
 
                     if keyp_2 == 'match':
                         if control_scheme:
-                            match_selects = [0, -1]
+                            match_selects = [select, -1]
                             curr_select = 0
                             while not finish:
                                 printhand(match_selects)
@@ -398,7 +454,7 @@ while True:
                                 if keyp_2 == 'select':
                                     if curr_select == 0:
                                         curr_select += 1
-                                        time.sleep(1)
+                                        match_selects[1] = 1 if match_selects[0] == 0 else 0
                                     else:
                                         if human_player.hands['hand'][match_selects[0]] !=\
                                                 human_player.hands['hand'][match_selects[1]] and \
@@ -415,11 +471,13 @@ while True:
                                                                           human_player.hands['hand'][match_selects[0]],
                                                                           human_player.hands['hand'][match_selects[1]])]
                                             update_scores()
+                                            overall_scores["matches"] += 1
                                             match_selects = [0, -1]
                                             curr_select = 0
                                         else:
                                             send(system, "That's not a match!")
                                 if keyp_2 == 'match':
+                                    select = match_selects[curr_select]
                                     break
 
             elif not control_scheme:
@@ -473,6 +531,7 @@ while True:
                                                                           human_player.hands['hand'][match_selects[0]],
                                                                           human_player.hands['hand'][match_selects[1]])]
                                         update_scores()
+                                        overall_scores["matches"] += 1
                                         match_selects = [0, -1]
                                         curr_select = 0
                                     else:
@@ -499,6 +558,7 @@ while True:
                                                   if e not in (human_player.hands['hand'][select])]
                     time.sleep(1)
                     send(robot_player, get_msg("have"))
+                    overall_scores["matches"] += 1
                     time.sleep(1)
                     update_scores()
                     break
@@ -546,6 +606,7 @@ while True:
                 if conf == 'y':
                     send(human_player, get_msg("have"))
                 if conf == 'n':
+                    overall_scores["bluffs"] += 1
                     send(human_player, get_msg("nothave"))
                     send(robot_player, "Hmm..")
                     time.sleep(3)
@@ -567,6 +628,7 @@ while True:
                             send(system, "You got caught, but you have no matches!")
                     else:
                         time.sleep(2)
+                        overall_scores["bluffswon"] += 1
                         send(system, "You got away with the bluff!")
                         gofish = True
             time.sleep(1)
