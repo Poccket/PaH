@@ -5,7 +5,7 @@ players = 0
 
 class Player:
     """A player with minimal functionality"""
-    def __init__(self, name: str = "", hands: dict = None, groups: list = None):
+    def __init__(self, name: str, color: str = "WHITE", hands: dict = None, groups: list = None):
         """
         Initializes a player.
 
@@ -17,6 +17,7 @@ class Player:
         players += 1
         # Add one to the player count
         self.hands = hands
+        self.color = color
         if groups is None:
             self.groups = ['default']
         else:
