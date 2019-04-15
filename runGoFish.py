@@ -24,6 +24,8 @@ difficulty = 1
 resetting = False
 diff = ["Easy", "Normal", "Hard"]
 overall_scores = {}
+
+
 def reset_scores():
     global overall_scores
     overall_scores = {
@@ -33,6 +35,8 @@ def reset_scores():
         "bluffswon": 0,
         "matches": 0,
     }
+
+
 reset_scores()
 
 try:
@@ -54,11 +58,11 @@ except FileNotFoundError:
 
 def score_file():
     _f = open('gofish.score', 'w')
-    _f.write('w '   + str(overall_scores["wins"]) +
-             ' l '  + str(overall_scores["losses"]) +
+    _f.write('w ' + str(overall_scores["wins"]) +
+             ' l ' + str(overall_scores["losses"]) +
              ' bm ' + str(overall_scores["bluffs"]) +
              ' bw ' + str(overall_scores["bluffswon"]) +
-             ' m '  + str(overall_scores["matches"]))
+             ' m ' + str(overall_scores["matches"]))
     _f.close()
 
 
@@ -78,9 +82,14 @@ def menu_print(selection: int = 1):
                   "-- Difficulty: -- " + diff_menu,
                   "-- First turn: -- " + ("[Human] Robot" if turn else " Human [Robot]"),
                   "-- Quit        --", "",
-                  modUI.colors["BLUE"] + "-- Games:      -- " + modUI.colors["GREEN"] + str(overall_scores["wins"]) + " Won" + modUI.colors["RESET"] + " / " + modUI.colors["RED"] + str(overall_scores["losses"]) + " Lost" + modUI.colors["RESET"],
-                  modUI.colors["BLUE"] + "-- Bluffs:     -- " + modUI.colors["GREEN"] + str(overall_scores["bluffswon"]) + " Won" + modUI.colors["RESET"] + " / " + modUI.colors["BLUE"] + str(overall_scores["bluffs"]) + " Made" + modUI.colors["RESET"],
-                  modUI.colors["BLUE"] + "-- Matches:    -- " + modUI.colors["GREEN"] + str(overall_scores["matches"]) + " Matches made" + modUI.colors["RESET"],
+                  modUI.colors["BLUE"] + "-- Games:      -- " + modUI.colors["GREEN"] + str(overall_scores["wins"])
+                  + " Won" + modUI.colors["RESET"] + " / " + modUI.colors["RED"] + str(overall_scores["losses"])
+                  + " Lost" + modUI.colors["RESET"],
+                  modUI.colors["BLUE"] + "-- Bluffs:     -- " + modUI.colors["GREEN"] + str(overall_scores["bluffswon"])
+                  + " Won" + modUI.colors["RESET"] + " / " + modUI.colors["BLUE"] + str(overall_scores["bluffs"])
+                  + " Made" + modUI.colors["RESET"],
+                  modUI.colors["BLUE"] + "-- Matches:    -- " + modUI.colors["GREEN"] + str(overall_scores["matches"])
+                  + " Matches made" + modUI.colors["RESET"],
                   "-- Reset score -- " + ("WARNING: RESETTING SCORES" if resetting else ""), ""]
     menu_hints = ["",
                   "Starts a game.",
@@ -294,7 +303,7 @@ while True:
     finish = False
     select = 1
     while not finish:
-        if select not in [1,2,3,4,5,6,11]:
+        if select not in [1, 2, 3, 4, 5, 6, 11]:
             if select < 1:
                 select = 11
             if select > 11:
@@ -344,8 +353,10 @@ while True:
             if select == 4:
                 change = 1 if keyp == 'right' else -1
                 difficulty += change
-                if difficulty == 3: difficulty = 0
-                if difficulty == -1: difficulty = 2
+                if difficulty == 3:
+                    difficulty = 0
+                if difficulty == -1:
+                    difficulty = 2
 
     while len(available) > 44:
         if turn:
