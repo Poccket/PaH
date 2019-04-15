@@ -14,8 +14,8 @@ import sys
 ui = modUI.Screen()
 human_player = modPlayers.Player("Player", "GREEN", {'hand': [], 'matches': []})
 human_color = 1
-robot_player = modPlayers.Player("Robot", "BLUE", {'hand': [], 'matches': []})
-robot_color = 2
+robot_player = modPlayers.Player("Robot", "RED", {'hand': [], 'matches': []})
+robot_color = 0
 system = modPlayers.Player("System", groups=['system'])
 
 deck = modFile.read_list("decks/cardFrench.txt")
@@ -45,22 +45,47 @@ def reset_scores():
     }
 
 
+def reset_settings():
+    global control_scheme
+    global turn
+    global difficulty
+    global human_color
+    global robot_color
+    global red_color
+    global blk_color
+    control_scheme = True
+    turn = True
+    difficulty = 1
+    human_color = 1
+    robot_color = 0
+    red_color = 0
+    blk_color = 3
+
+
 reset_scores()
 
 try:
-    f = open('gofish.score', 'r')
-    f_cont = f.read()
-    f.close()
-    scores = [int(s) for s in f_cont.split() if s.isdigit()]
+    f_cont = modFile.read_list('gofish.score')
+    scores = [int(s) for s in f_cont[0].split() if s.isdigit()]
     if len(scores) >= 5:
         overall_scores["wins"] = scores[0]
         overall_scores["losses"] = scores[1]
         overall_scores["bluffs"] = scores[2]
         overall_scores["bluffswon"] = scores[3]
         overall_scores["matches"] = scores[4]
-except FileNotFoundError:
+    setts = [int(s) for s in f_cont[1].split() if s.isdigit()]
+    if len(setts) >= 7:
+        control_scheme = (bool(setts[0]) if setts[0] in [0, 1] else True)
+        turn = (bool(setts[1]) if setts[1] in [0, 1] else True)
+        difficulty = (setts[2] if setts[2] in [0, 1, 2] else 1)
+        human_color = (setts[3] if setts[3] in [0, 1, 2] else 1)
+        robot_color = (setts[4] if setts[4] in [0, 1, 2] else 0)
+        red_color = (setts[5] if setts[5] in [0, 1, 2, 3] else 0)
+        blk_color = (setts[6] if setts[6] in [0, 1, 2, 3] else 3)
+except (FileNotFoundError, IndexError):
     f = open('gofish.score', 'w')
-    f.write('w 0 l 0 bm 0 bw 0 m 0')
+    f.write('w 0 l 0 bm 0 bw 0 m 0\n' +
+            'inpt 1 turn 1 diff 1 col0 1 col1 0 col2 1 col3 4')
     f.close()
 
 
@@ -70,7 +95,14 @@ def score_file():
              ' l ' + str(overall_scores["losses"]) +
              ' bm ' + str(overall_scores["bluffs"]) +
              ' bw ' + str(overall_scores["bluffswon"]) +
-             ' m ' + str(overall_scores["matches"]))
+             ' m ' + str(overall_scores["matches"]) + '\n' +
+             'inpt ' + str(int(control_scheme)) +
+             ' turn ' + str(int(turn)) +
+             ' diff ' + str(difficulty) +
+             ' col0 ' + str(human_color) +
+             ' col1 ' + str(robot_color) +
+             ' col2 ' + str(red_color) +
+             ' col3 ' + str(blk_color))
     _f.close()
 
 
@@ -89,7 +121,8 @@ def menu():
     while menu_finish:
         ui_mid = math.floor(ui.height / 2.5)
         ui.clean()
-    
+        score_file()
+
         settings = {
             "input_type": ["", "Typing", "Arrow Keys", int(control_scheme)],
             "turn_order": ["", "Robot", "Human", int(turn)],
@@ -148,9 +181,10 @@ def menu():
                       "-- Robot color      >> " + settings["robo_color"][0],
                       "-- Red card color   >> " + settings["redc_color"][0],
                       "-- Black card color >> " + settings["blkc_color"][0],
-                      "-- Go back to menu  -- "
+                      "-- Go back to menu  -- ",
+                      "-- Reset settings   -- "
                       ],
-            "select": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+            "select": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
             "back": 9,
             "hints": ["Changes the resolution, use when you resize your window",
                       "Type in your awnsers, or select with the arrow keys",
@@ -160,7 +194,8 @@ def menu():
                       "The color of robots in the game chat",
                       "The color of red cards in your hand",
                       "The color of black cards in your hand",
-                      "Return to the main menu"]
+                      "Return to the main menu",
+                      "Reset ALL settings to defaults"]
         }, {
             "items": ["Title",
                       "Are you sure you want to do that?",
@@ -290,12 +325,19 @@ def menu():
                         blk_color = 0
                     else:
                         blk_color += 1
+                if menu_select == 9:
+                    menu_index = 3
+                    menu_prompt = "You are about to reset your settings!"
             elif menu_index == 3:
                 if menu_select == 0:
                     if "exit" in menu_prompt:
                         sys.exit()
                     elif "erase" in menu_prompt:
                         reset_scores()
+                        menu_index = 1
+                    elif "reset" in menu_prompt:
+                        reset_settings()
+                        menu_index = 2
 
 
 suits = {
