@@ -19,7 +19,7 @@ system = modPlayers.Player("System", groups=['system'])
 deck = modFile.read_list("decks/cardFrench.txt")
 turn = True
 control_scheme = True
-prev_query = None
+prev_query = 0
 difficulty = 1
 resetting = False
 diff = ["Easy", "Normal", "Hard"]
@@ -585,8 +585,10 @@ while True:
             turn = not turn
         else:
             select = prev_query
-            while select == prev_query:
+            max_rolls = 0
+            while select == prev_query or max_rolls < 10:
                 select = random.randrange(0, len(robot_player.hands['hand']))
+                max_rolls += 1
             prev_query = select
             time.sleep(2)
             send(robot_player, get_msg("query") + "{} {}?"
