@@ -203,13 +203,42 @@ def menu():
             key_press = modGetch.get_arrow()
         if key_press == 'up':
             menu_select -= 1
-        if key_press == 'down':
+        elif key_press == 'down':
             menu_select += 1
-        if key_press == 'left':
-            pass
-        if key_press == 'right':
-            pass
-        if key_press == 'select':
+        elif key_press == 'left':
+            if menu_index == 2:
+                if menu_select == 1:
+                    control_scheme = not control_scheme
+                if menu_select == 2:
+                    turn = not turn
+                if menu_select == 3:
+                    if difficulty == 0:
+                        difficulty = 2
+                    else:
+                        difficulty -= 1
+                if menu_select == 4:
+                    if human_color == 0:
+                        human_color = 2
+                    else:
+                        human_color -= 1
+                    human_player.color = ck[human_color]
+                if menu_select == 5:
+                    if robot_color == 0:
+                        robot_color = 2
+                    else:
+                        robot_color -= 1
+                    robot_player.color = ck[robot_color]
+                if menu_select == 6:
+                    if red_color == 0:
+                        red_color = 3
+                    else:
+                        red_color -= 1
+                if menu_select == 7:
+                    if blk_color == 0:
+                        blk_color = 3
+                    else:
+                        blk_color -= 1
+        elif key_press in ['right', 'select']:
             if menus[menu_index]["select"][menu_select] == menus[menu_index]["back"]:
                 menu_index = 0
                 continue
