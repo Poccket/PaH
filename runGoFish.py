@@ -540,6 +540,7 @@ while True:
 
     human_match_count = 0
     robot_match_count = 0
+    send(system, ("You go first, pick a card to play." if turn else "Robot's up first, wait for your turn."))
     while not abort_game:
         # -- Win conditions --
         # If human player's hand is empty
