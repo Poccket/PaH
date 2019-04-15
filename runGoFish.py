@@ -13,15 +13,23 @@ import sys
 
 ui = modUI.Screen()
 human_player = modPlayers.Player("Player", "GREEN", {'hand': [], 'matches': []})
+human_color = 1
 robot_player = modPlayers.Player("Robot", "BLUE", {'hand': [], 'matches': []})
+robot_color = 2
 system = modPlayers.Player("System", groups=['system'])
 
 deck = modFile.read_list("decks/cardFrench.txt")
+
+# Some setting definitions
 turn = True
 control_scheme = True
-prev_query = 0
 difficulty = 1
+red_color = 0
+blk_color = 3
+ck = ["RED", "GREEN", "BLUE", "WHITE"]
+
 resetting = False
+prev_query = 0
 diff = ["Easy", "Normal", "Hard"]
 overall_scores = {}
 
@@ -66,53 +74,199 @@ def score_file():
     _f.close()
 
 
-def menu_print(selection: int = 1):
-    ui_mid = math.floor(ui.height / 2.5)
-    ui.clean()
-    if difficulty == 0:
-        diff_menu = "[Easy] Normal  Hard"
-    elif difficulty == 1:
-        diff_menu = " Easy [Normal] Hard"
-    else:
-        diff_menu = " Easy  Normal [Hard]"
-    menu_items = [modUI.colors["RED"] + "Go Fish!" + modUI.colors["RESET"],
-                  "-- Start       --",
-                  "-- Resize:     -- " + str(ui.width) + "x" + str(ui.height),
-                  "-- Input:      -- " + ("[Arrow] Type" if control_scheme else " Arrow [Type]"),
-                  "-- Difficulty: -- " + diff_menu,
-                  "-- First turn: -- " + ("[Human] Robot" if turn else " Human [Robot]"),
-                  "-- Quit        --", "",
-                  modUI.colors["BLUE"] + "-- Games:      -- " + modUI.colors["GREEN"] + str(overall_scores["wins"])
-                  + " Won" + modUI.colors["RESET"] + " / " + modUI.colors["RED"] + str(overall_scores["losses"])
-                  + " Lost" + modUI.colors["RESET"],
-                  modUI.colors["BLUE"] + "-- Bluffs:     -- " + modUI.colors["GREEN"] + str(overall_scores["bluffswon"])
-                  + " Won" + modUI.colors["RESET"] + " / " + modUI.colors["BLUE"] + str(overall_scores["bluffs"])
-                  + " Made" + modUI.colors["RESET"],
-                  modUI.colors["BLUE"] + "-- Matches:    -- " + modUI.colors["GREEN"] + str(overall_scores["matches"])
-                  + " Matches made" + modUI.colors["RESET"],
-                  "-- Reset score -- " + ("WARNING: RESETTING SCORES" if resetting else ""), ""]
-    menu_hints = ["",
-                  "Starts a game.",
-                  "Resets the screen size, use this if you resized after starting.",
-                  "Changes the input type to typing your card or using arrow keys.",
-                  "Difficulty affects bluff chance and punishment.",
-                  "Changes if you or the A.I. has the first turn.",
-                  "Exits the game.",
-                  "", "", "Resets all scores", "",
-                  "Resets all scores. Must be pressed twice."]
-    menu_items += [menu_hints[selection]]
-    for index, item in enumerate(menu_items):
-        if index == selection:
-            item = modUI.colors["GREEN"] + item[:17] + modUI.colors["BLUE"] + item[17:] + modUI.colors["RESET"]
-            item = item.replace('--', '[[', 1)
-            item = item.replace('--', ']]')
-        else:
-            item.replace('[[', '--')
-            item.replace(']]', '--')
-        for num in range(0, (math.floor(ui.width / 2) - 24)):
-            item = " " + item
-        ui.line(ui_mid, "insert", item)
-    ui.print()
+def menu():
+    global turn
+    global control_scheme
+    global difficulty
+    global human_color
+    global robot_color
+    global red_color
+    global blk_color
+    menu_finish = True
+    menu_index = 0
+    menu_select = 0
+    menu_prompt = "You are about to exit the game"
+    while menu_finish:
+        ui_mid = math.floor(ui.height / 2.5)
+        ui.clean()
+    
+        settings = {
+            "input_type": ["", "Typing", "Arrow Keys", int(control_scheme)],
+            "turn_order": ["", "Robot", "Human", int(turn)],
+            "difficulty": ["", "Easy", "Medium", "Hard", difficulty],
+            "self_color": ["", "Red", "Green", "Blue", human_color],
+            "robo_color": ["", "Red", "Green", "Blue", robot_color],
+            "redc_color": ["", "Red", "Green", "Blue", "White", red_color],
+            "blkc_color": ["", "Red", "Green", "Blue", "White", blk_color],
+        }
+    
+        for key, setting in settings.items():
+            output = ""
+            for index, option in enumerate(setting):
+                if option in [setting[0], setting[-1]]:
+                    continue
+                if index-1 == setting[-1]:
+                    output += "[" + option + "]"
+                else:
+                    output += " " + option + " "
+            setting[0] = output
+    
+        menus = [{
+            "items": ["Go Fish!",  # Title
+                      "-- Start            --",
+                      "-- Settings         --",
+                      "-- Stats            --",
+                      "-- Quit             --"
+                      ],
+            "select": [1, 2, 3, 4],
+            "back": None,
+            "hints": ["Starts a game",
+                      "Options for gameplay",
+                      "Statistics and scores",
+                      "Exits the program"]
+        }, {
+            "items": ["Statistics",
+                      "-- Matches won      >> " + str(overall_scores["wins"]),
+                      "-- Matches lost     >> " + str(overall_scores["losses"]),
+                      "-- Total matches    >> " + str(overall_scores["wins"] + overall_scores["losses"]),
+                      "-- Bluffs won       >> " + str(overall_scores["bluffswon"]),
+                      "-- Total bluffs     >> " + str(overall_scores["bluffs"]),
+                      "-- Total matches    >> " + str(overall_scores["matches"]),
+                      "-- Go back to menu  -- ",
+                      "-- Reset scores     -- "
+                      ],
+            "select": [7, 8],
+            "back": 7,
+            "hints": ["Return to the main menu", "Reset ALL scores to ZERO"]
+        }, {
+            "items": ["Settings",
+                      "-- Resize Screen    >> " + str(ui.width) + "x" + str(ui.height),
+                      "-- Input type       >> " + settings["input_type"][0],
+                      "-- Turn order       >> " + settings["turn_order"][0],
+                      "-- Difficulty       >> " + settings["difficulty"][0],
+                      "-- Human color      >> " + settings["self_color"][0],
+                      "-- Robot color      >> " + settings["robo_color"][0],
+                      "-- Red card color   >> " + settings["redc_color"][0],
+                      "-- Black card color >> " + settings["blkc_color"][0],
+                      "-- Go back to menu  -- "
+                      ],
+            "select": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+            "back": 9,
+            "hints": ["Changes the resolution, use when you resize your window",
+                      "Type in your awnsers, or select with the arrow keys",
+                      "Select who goes first",
+                      "Difficulty changes bluff chances and punishments",
+                      "The color of your name in the game chat",
+                      "The color of robots in the game chat",
+                      "The color of red cards in your hand",
+                      "The color of black cards in your hand",
+                      "Return to the main menu"]
+        }, {
+            "items": ["Title",
+                      "Are you sure you want to do that?",
+                      "-- Yes, I'm sure.   -- ",
+                      "-- No, I'm not.     -- "
+                      ],
+            "select": [2, 3],
+            "back": 3,
+            "hints": ["", ""]
+        }]
+        
+        if menu_select > len(menus[menu_index]["select"])-1:
+            menu_select = 0
+        elif menu_select < 0:
+            menu_select = ((len(menus[menu_index]["select"]))-1)
+    
+        for index, item in enumerate(menus[menu_index]["items"]):
+            if menu_index == 3 and index == 0:
+                item = menu_prompt
+            if index == menus[menu_index]["select"][menu_select]:
+                item = modUI.colors["GREEN"] + item[:22] + modUI.colors["BLUE"] + item[22:] + modUI.colors["RESET"]
+                item = item.replace('--', '[[', 1)
+                item = item.replace('--', ']]')
+            elif index in [0, menus[menu_index]["back"]]:
+                item = modUI.colors["RED"] + item + modUI.colors["RESET"]
+            else:
+                item.replace('[[', '--')
+                item.replace(']]', '--')
+            for num in range(0, (math.floor(ui.width / 2) - 24)):
+                item = " " + item
+            ui.line(ui_mid, "insert", item)
+        if menus[menu_index]["hints"][menu_select] != "":
+            item = menus[menu_index]["hints"][menu_select]
+            for num in range(0, (math.floor(ui.width / 2) - 24)):
+                item = " " + item
+            ui.line(ui_mid-2, "change", item)
+        ui.print()
+        key_press = None
+        while key_press not in ["up", "down", "left", "right", "select"]:
+            key_press = modGetch.get_arrow()
+        if key_press == 'up':
+            menu_select -= 1
+        if key_press == 'down':
+            menu_select += 1
+        if key_press == 'left':
+            pass
+        if key_press == 'right':
+            pass
+        if key_press == 'select':
+            if menus[menu_index]["select"][menu_select] == menus[menu_index]["back"]:
+                menu_index = 0
+                continue
+            elif menu_index == 0:
+                if menu_select == 0:
+                    menu_finish = not menu_finish
+                elif menu_select == 1:
+                    menu_index = 2
+                elif menu_select == 2:
+                    menu_index = 1
+                elif menu_select == 3:
+                    menu_index = 3
+                    menu_prompt = "You are about to exit the game!"
+            elif menu_index == 1:
+                if menu_select == 1:
+                    menu_index = 3
+                    menu_prompt = "You are about to erase your scores!"
+            elif menu_index == 2:
+                if menu_select == 0:
+                    ui.width, ui.height = ui.auto_size()
+                if menu_select == 1:
+                    control_scheme = not control_scheme
+                if menu_select == 2:
+                    turn = not turn
+                if menu_select == 3:
+                    if difficulty == 2:
+                        difficulty = 0
+                    else:
+                        difficulty += 1
+                if menu_select == 4:
+                    if human_color == 2:
+                        human_color = 0
+                    else:
+                        human_color += 1
+                    human_player.color = ck[human_color]
+                if menu_select == 5:
+                    if robot_color == 2:
+                        robot_color = 0
+                    else:
+                        robot_color += 1
+                    robot_player.color = ck[robot_color]
+                if menu_select == 6:
+                    if red_color == 3:
+                        red_color = 0
+                    else:
+                        red_color += 1
+                if menu_select == 7:
+                    if blk_color == 3:
+                        blk_color = 0
+                    else:
+                        blk_color += 1
+            elif menu_index == 3:
+                if menu_select == 0:
+                    if "exit" in menu_prompt:
+                        sys.exit()
+                    elif "erase" in menu_prompt:
+                        reset_scores()
 
 
 suits = {
@@ -242,7 +396,9 @@ def printhand(selected: [list, int] = None):
                     else:
                         curr_line += '  '
                     if colorcheck(human_player.hands['hand'][y]) == "red":
-                        curr_line += modUI.colors["RED"]
+                        curr_line += modUI.colors[ck[red_color]]
+                    else:
+                        curr_line += modUI.colors[ck[blk_color]]
                     curr_line += z[y] + modUI.colors["RESET"]
             ui.line(curr_height, "change", curr_line)
             curr_height -= 1
@@ -302,61 +458,7 @@ while True:
 
     finish = False
     select = 1
-    while not finish:
-        if select not in [1, 2, 3, 4, 5, 6, 11]:
-            if select < 1:
-                select = 11
-            if select > 11:
-                select = 1
-            if select == 7:
-                select = 11
-            if select == 10:
-                select = 6
-        menu_print(select)
-        keyp = None
-        while keyp not in ['up', 'down', 'select', 'left', 'right']:
-            keyp = modGetch.get_arrow()
-        if keyp == 'up':
-            resetting = False
-            select -= 1
-        if keyp == 'down':
-            resetting = False
-            select += 1
-        if keyp == 'select':
-            if select == 1:
-                finish = not finish
-            if select == 2:
-                ui.width, ui.height = ui.auto_size()
-            if select == 3:
-                control_scheme = not control_scheme
-            if select == 4:
-                if difficulty == 2:
-                    difficulty = 0
-                else:
-                    difficulty += 1
-            if select == 5:
-                turn = not turn
-            if select == 6:
-                sys.exit()
-            if select == 11:
-                if not resetting:
-                    resetting = True
-                else:
-                    reset_scores()
-                    score_file()
-                    resetting = False
-        if keyp == 'left' or keyp == 'right':
-            if select == 3:
-                control_scheme = not control_scheme
-            if select == 5:
-                turn = not turn
-            if select == 4:
-                change = 1 if keyp == 'right' else -1
-                difficulty += change
-                if difficulty == 3:
-                    difficulty = 0
-                if difficulty == -1:
-                    difficulty = 2
+    menu()
 
     while len(available) > 44:
         if turn:
