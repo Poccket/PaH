@@ -12,9 +12,9 @@ import sys
 
 
 ui = modUI.Screen()
-human_player = modPlayers.Player("Player", "GREEN", {'hand': [], 'matches': []})
+human_player = modPlayers.Player("Player", "LIGHTGREEN", {'hand': [], 'matches': []})
 human_color = 1
-robot_player = modPlayers.Player("Robot", "RED", {'hand': [], 'matches': []})
+robot_player = modPlayers.Player("Robot", "LIGHTRED", {'hand': [], 'matches': []})
 robot_color = 0
 system = modPlayers.Player("System", groups=['system'])
 
@@ -26,7 +26,7 @@ control_scheme = True
 difficulty = 1
 red_color = 0
 blk_color = 3
-ck = ["RED", "GREEN", "BLUE", "WHITE"]
+ck = ["LIGHTRED", "LIGHTGREEN", "LIGHTBLUE", "LIGHTWHITE"]
 
 resetting = False
 prev_query = 0
@@ -216,11 +216,12 @@ def menu():
             if menu_index == 3 and index == 0:
                 item = menu_prompt
             if index == menus[menu_index]["select"][menu_select]:
-                item = modUI.colors["GREEN"] + item[:22] + modUI.colors["BLUE"] + item[22:] + modUI.colors["RESET"]
+                item = modUI.colors["LIGHTGREEN"] + item[:22] + modUI.colors["LIGHTBLUE"]\
+                       + item[22:] + modUI.colors["RESET"]
                 item = item.replace('--', '[[', 1)
                 item = item.replace('--', ']]')
             elif index in [0, menus[menu_index]["back"]]:
-                item = modUI.colors["RED"] + item + modUI.colors["RESET"]
+                item = modUI.colors["LIGHTRED"] + item + modUI.colors["RESET"]
             else:
                 item.replace('[[', '--')
                 item.replace(']]', '--')
