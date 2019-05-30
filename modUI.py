@@ -190,6 +190,7 @@ class Screen:
             self.emptyscreen()
         # If clear is set, then clear!
 
+        """
         if self.reverse:
             for x in self.ui:
                 print(x)
@@ -198,5 +199,11 @@ class Screen:
             for x in reversed(self.ui):
                 print(x)
         # If it's not, then print the ui list where 0 is the top!
+        """  # Old code, just in case.
+
+        if self.reverse:  # If reverse is set
+            print('\n'.join(self.ui))  # Print list joined into a string, with each item seperated by newlines
+        else:  # If it's not
+            print('\n'.join(self.ui[::-1]))  # Do that same thing with a reversed list.
         return 0
         # Finally we return 0!
