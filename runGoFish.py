@@ -421,14 +421,14 @@ def send(usr, msg):
             del messages[0]
         for a in range(chat_height, ui.height):
             ui.line(a, "clear")
-    ui.line(chat_height-1, "clear")
+    ui.line(chat_height, "clear")
     ui.line(chat_height-5, "clear")
     for msg in messages:
         ui.line(chat_height, "insert", msg)
     ui.print()
 
 
-def printhand(selected: [list, int] = None):
+def printhand(selected: [list, int] = None, controls: str = ""):
     global curr_height
     global chat_height
     global max_cards
@@ -442,7 +442,7 @@ def printhand(selected: [list, int] = None):
     # The height that the cards will start printing at.
     curr_height = math.ceil(rows_needed * 12)-1
     # Exactly 6 rows above the cards (Where chat is printed)
-    chat_height = math.ceil(rows_needed * 12) + 5
+    chat_height = math.ceil(rows_needed * 12) + 6
 
     if type(selected) != list:
         selected = [selected]
@@ -478,7 +478,7 @@ def printhand(selected: [list, int] = None):
         startrow += max_cards
     update_scores()
     send(None, None)
-    ui.print()
+    ui.line(0, "insert", controls, True)
 
 
 def update_scores():
@@ -578,8 +578,7 @@ while True:
                 select = 0
                 finish = False
                 while not finish:
-                    printhand(select)
-                    print("left/right to move / enter to select / m to match / q to quit game")
+                    printhand(select, "left/right to move / enter to select / m to match / q to quit game")
                     keyp_2 = None
                     while keyp_2 not in ['right', 'left', 'select', 'escape', 'match']:
                         keyp_2 = modGetch.get_arrow()
@@ -612,8 +611,7 @@ while True:
                             match_selects = [select, -1]
                             curr_select = 0
                             while not finish:
-                                printhand(match_selects)
-                                print("left/right to move / enter to select / m to stop matching")
+                                printhand(match_selects, "left/right to move / enter to select / m to stop matching")
                                 keyp_2 = None
                                 while keyp_2 not in ['right', 'left', 'select', 'match']:
                                     keyp_2 = modGetch.get_arrow()
@@ -669,8 +667,7 @@ while True:
             elif not control_scheme:
                 select = "None, but not None"
                 while True:
-                    printhand()
-                    print("enter number to select / m to match / q to quit")
+                    printhand(None, "enter number to select / m to match / q to quit")
                     select = input("Enter selection: ")
                     if modHelper.is_int(select) and int(select) in list(range(0, len(human_player.hands['hand'])-1)):
                         break
@@ -690,8 +687,7 @@ while True:
                         finish = False
                         while not finish:
                             match_selects[curr_select] = "Like, it's None but it's not NONE, you know?"
-                            printhand()
-                            print("enter number to select / m to stop matching")
+                            printhand(None, "enter number to select / m to stop matching")
                             match_selects[curr_select] = input("Enter selection: ")
                             if modHelper.is_int(match_selects[curr_select]) and \
                                     int(match_selects[curr_select]) in \
