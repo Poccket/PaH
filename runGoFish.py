@@ -428,7 +428,7 @@ def send(usr, msg):
     ui.print()
 
 
-def printhand(selected: [list, int] = None, controls: str = ""):
+def printhand(selected: [list, int] = None, controls: str = "..."):
     global curr_height
     global chat_height
     global max_cards
@@ -476,9 +476,9 @@ def printhand(selected: [list, int] = None, controls: str = ""):
             curr_height -= 1
             curr_line = ""
         startrow += max_cards
+    ui.line(0, "insert", controls)
     update_scores()
     send(None, None)
-    ui.line(0, "insert", controls, True)
 
 
 def update_scores():
