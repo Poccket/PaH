@@ -667,7 +667,7 @@ while True:
             elif not control_scheme:
                 select = "None, but not None"
                 while True:
-                    printhand(None, "enter number to select / m to match / q to quit")
+                    printhand(controls="enter number to select / m to match / q to quit")
                     select = input("Enter selection: ")
                     if modHelper.is_int(select) and int(select) in list(range(0, len(human_player.hands['hand'])-1)):
                         break
@@ -687,7 +687,7 @@ while True:
                         finish = False
                         while not finish:
                             match_selects[curr_select] = "Like, it's None but it's not NONE, you know?"
-                            printhand(None, "enter number to select / m to stop matching")
+                            printhand(controls="enter number to select / m to stop matching")
                             match_selects[curr_select] = input("Enter selection: ")
                             if modHelper.is_int(match_selects[curr_select]) and \
                                     int(match_selects[curr_select]) in \
