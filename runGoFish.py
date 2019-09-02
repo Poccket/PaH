@@ -737,6 +737,7 @@ while True:
                 send(system, "You gave away your bluff! You're more likely to be caught.")
                 bluff_add = bluff_add*1.5
                 bluff_last = None
+            r_bluff = [False, None]
             for c, x in enumerate(robot_player.hands['hand']):
                 if rankcheck(x) == rankcheck(human_player.hands['hand'][select]) and \
                         colorcheck(x) == colorcheck(human_player.hands['hand'][select]):
@@ -768,6 +769,7 @@ while True:
                         time.sleep(1)
                         send(system, "You called, but there was no bluff!")
                         conf = 'n'
+                        bluff_add = bluff_add*1.1
                 if conf == 'n':
                     card_in = dealcard()
                     if card_in is not False:
