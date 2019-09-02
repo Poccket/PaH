@@ -737,28 +737,53 @@ while True:
                 send(system, "You gave away your bluff! You're more likely to be caught.")
                 bluff_add = bluff_add*1.5
                 bluff_last = None
-            for x in robot_player.hands['hand']:
+            for c, x in enumerate(robot_player.hands['hand']):
                 if rankcheck(x) == rankcheck(human_player.hands['hand'][select]) and \
                         colorcheck(x) == colorcheck(human_player.hands['hand'][select]):
-                    gofish = False
-                    human_player.hands['matches'].extend((x, human_player.hands['hand'][select]))
-                    robot_player.hands['hand'] = [e for e in robot_player.hands['hand'] if e not in (x, '')]
-                    human_player.hands['hand'] = [e for e in human_player.hands['hand']
-                                                  if e not in (human_player.hands['hand'][select])]
-                    time.sleep(1)
-                    send(robot_player, get_msg("have"))
-                    overall_scores["matches"] += 1
-                    time.sleep(1)
-                    update_scores()
-                    break
+                    if random.randint(0, 8) > 1:
+                        r_bluff = [False, c]
+                        gofish = False
+                        break
+                    else:
+                        r_bluff = [True, c]
 
             if gofish:
                 time.sleep(1)
                 send(robot_player, get_msg("nothave"))
-                card_in = dealcard()
-                if card_in is not False:
-                    input("Press enter to draw ]")
-                    human_player.hands['hand'].append(deck[card_in])
+                conf = None
+                while conf not in ['y', 'n']:
+                    conf = input("Accuse of Bluff? [y/n] ")
+                    conf = conf.lower()[:1]
+                if conf == 'y':
+                    send(human_player, "You're bluffing!")
+                    if r_bluff[0]:
+                        time.sleep(1)
+                        send(robot_player, "Got me!")
+                        time.sleep(1)
+                        send(system, "You called a bluff!")
+                        gofish = False
+                    else:
+                        time.sleep(1)
+                        send(robot_player, "What?")
+                        time.sleep(1)
+                        send(system, "You called, but there was no bluff!")
+                        conf = 'n'
+                if conf == 'n':
+                    card_in = dealcard()
+                    if card_in is not False:
+                        human_player.hands['hand'].append(deck[card_in])
+
+            if not gofish:
+                x = robot_player.hands['hand'][r_bluff[1]]
+                human_player.hands['matches'].extend((x, human_player.hands['hand'][select]))
+                robot_player.hands['hand'] = [e for e in robot_player.hands['hand'] if e not in (x, '')]
+                human_player.hands['hand'] = [e for e in human_player.hands['hand']
+                                              if e not in (human_player.hands['hand'][select])]
+                time.sleep(1)
+                send(robot_player, get_msg("have"))
+                overall_scores["matches"] += 1
+                time.sleep(1)
+                update_scores()
 
             turn = not turn
         else:
