@@ -541,6 +541,8 @@ while True:
 
     human_match_count = 0
     robot_match_count = 0
+    bluff_last = None
+    bluff_add = 1.0
     send(system, ("You go first, pick a card to play." if turn else "Robot's up first, wait for your turn."))
     while not abort_game:
         # -- Win conditions --
@@ -730,6 +732,11 @@ while True:
             send(human_player, get_msg("query") + "{} {}?"
                                                   .format(colorcheck(human_player.hands['hand'][select]),
                                                           rankcheck(human_player.hands['hand'][select])))
+            if human_player.hands['hand'][select] == bluff_last and difficulty > 0:
+                send(robot_player, "You were bluffing!")
+                send(system, "You gave away your bluff! You're more likely to be caught.")
+                bluff_add = bluff_add*1.5
+                bluff_last = None
             for x in robot_player.hands['hand']:
                 if rankcheck(x) == rankcheck(human_player.hands['hand'][select]) and \
                         colorcheck(x) == colorcheck(human_player.hands['hand'][select]):
@@ -795,13 +802,14 @@ while True:
                     send(robot_player, "Hmm..")
                     time.sleep(3)
                     bluff_chance = (9*difficulty) if difficulty > 0 else 3
-                    if random.randrange(0, bluff_chance) > 2 if difficulty > 0 else 1:
+                    if random.randrange(0, bluff_chance) > (2*bluff_add if difficulty > 0 else 1):
                         send(robot_player, "You're bluffing!")
                         time.sleep(1)
                         if difficulty > 0 and len(human_player.hands['matches']) >= 2*difficulty:
                             human_player.hands['matches'] = \
                                 human_player.hands['matches'][:len(human_player.hands['matches'])-(2*difficulty)]
-                            send(system, "You got caught! You lost " + "a match!" if difficulty == 1 else "2 matches!")
+                            send(system, "You got caught! You lost " +
+                                 ("a match!" if difficulty == 1 else "2 matches!"))
                         elif difficulty == 2 and len(human_player.hands['matches']) >= 2:
                             human_player.hands['matches'] = \
                                 human_player.hands['matches'][:len(human_player.hands['matches']) - 2]
@@ -814,6 +822,8 @@ while True:
                         time.sleep(2)
                         overall_scores["bluffswon"] += 1
                         send(system, "You got away with the bluff!")
+                        bluff_add = bluff_add*0.8
+                        bluff_last = human_player.hands['hand'][removeMe]
                         gofish = True
             time.sleep(1)
 
